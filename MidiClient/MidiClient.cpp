@@ -1,13 +1,16 @@
 // MidiClient.cpp 
 
 #include "stdafx.h"
-#include <iostream>
-#include <mutex>
-#include <windows.h>
-
 #include "IWinRTMidiPortWatcher.h"
 #include "IWinRTMidiPort.h"
 
+#include <iostream>
+#include <mutex>
+#include <windows.h>
+#include <wrl\wrappers\corewrappers.h>
+
+using namespace Platform;
+using namespace Microsoft::WRL::Wrappers;
 using namespace std;
 using namespace WinRT;
 
@@ -75,10 +78,15 @@ void midiInCallback(const IWinRTMidiInPort* midiInPort, double deltatime, vector
     }
 }
 
-int main(Platform::Array<Platform::String^>^ args) 
+//int main(Platform::Array<Platform::String^>^ args) 
+[MTAThread]
+int main()
 {
     HINSTANCE dllHandle = NULL;
     IWinRTMidiInPort* midiInPort = nullptr;
+
+    // Initialize the Windows Runtime.
+    RoInitializeWrapper initialize(RO_INIT_MULTITHREADED);
 
     //Load the dll and keep the handle to it
     dllHandle = LoadLibrary(L"WinRTMidi.dll");
