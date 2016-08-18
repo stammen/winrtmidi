@@ -1,10 +1,12 @@
 #include "WinRTMidi.h"
 #include "WinRTMidiportWatcher.h"
+#include <ppltasks.h>
 
 using namespace WinRT;
 using namespace Windows::Devices::Midi;
 using namespace Windows::Storage::Streams;
 using namespace std::placeholders;
+using namespace concurrency;
 
 /*****************************************************
     MidiInPortImpl
@@ -82,12 +84,17 @@ void WinRTMidiInPort::OpenPort(int index)
 //Blocks until port is open
 void WinRTMidiInPort::OpenPort(Platform::String^ id)
 {
+    mLastMessageTime = 0;
+    mFirstMessage = true;
+    auto task = create_task(MidiInPort::FromIdAsync(id));
+
+    // wait for port to be created
+    task.wait();
+
+    // get results
     try
     {
-        mLastMessageTime = 0;
-        mFirstMessage = true;
-        auto task = MidiInPort::FromIdAsync(id);
-        mMidiInPort = task->GetResults();
+        mMidiInPort = task.get();
         mMidiInPort->MessageReceived += ref new Windows::Foundation::TypedEventHandler<MidiInPort ^, MidiMessageReceivedEventArgs ^>(this, &WinRTMidiInPort::OnMidiInMessageReceived);
     }
     catch (Platform::Exception^ ex)
