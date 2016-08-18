@@ -37,3 +37,28 @@
 	_Required C++ Code Generation Properties_
 	
 ### Updating your Win32 main() function ###
+
+Note: This is still under investigation for running the app on Windows 7.
+
+You have several options. We are still investigating which is the best option.
+
+1. Change your main() function to:
+
+    ````C++
+	int main(Platform::Array<Platform::String^>^ args) 
+    ````
+
+1. Decorate your main() function with [MTAThread]
+
+    ````C++
+	#include <wrl\wrappers\corewrappers.h>
+	
+	using namespace Platform;
+	using namespace Microsoft::WRL::Wrappers;
+
+	[MTAThread]
+	int main()
+	{
+		// Initialize the Windows Runtime.
+		RoInitializeWrapper initialize(RO_INIT_MULTITHREADED);
+	````
