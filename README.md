@@ -1,11 +1,7 @@
 ﻿<a name="HOLTop" />
-# Creating a new ANGLE project using a Visual Studio Template #
+# Adding the WinRTMidi DLL to your Win32 Project #
 
 ---
-
-### Adding the WinRTMidi DLL to your Win32 Project ###
-
-In this exercise, you will use Visual Studio 2015 to create a new ANGLE project using the installed ANGLE project templates. You will also build and run the new project.
 
 #### Updating your Win32 Project Properties ###
 
