@@ -32,4 +32,4 @@
 
 	_Required C++ Code Generation Properties_
 	
-#### Updating your Win32 Main() function ###
+#### Updating your Win32 main() function ###
