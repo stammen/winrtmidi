@@ -1,11 +1,10 @@
-﻿<a name="HOLTop" />
-# Adding the WinRTMidi DLL to your Win32 Project #
+﻿# Adding the WinRTMidi DLL to your Win32 Project #
 
 ---
 
 #### Updating your Win32 Project Properties ###
 
-1. Right-click on your Visual Studio 2015 project and select **Properties**.
+1. Right-click on your Visual Studio 2015 application project and select **Properties**.
 
 	![Project Properties](Images/properties.png?raw=true "Project Properties")
 
@@ -16,9 +15,8 @@
 	![Required General Properties](Images/version.png?raw=true "Required General Properties")
 
 	_Required General Properties_
-
 	
-1. Select the **C++ | General** Property. Add the following paths to the **Addition #using Directories** property:
+1. Select the **C++ | General** Property. Add the following paths to the **Additional #using Directories** property:
 
 	C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcpackages;C:\Program Files (x86)\Windows Kits\10\UnionMetadata
 
@@ -34,3 +32,4 @@
 
 	_Required C++ Code Generation Properties_
 	
+#### Updating your Win32 Main() function ###
