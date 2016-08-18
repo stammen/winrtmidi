@@ -1,8 +1,6 @@
-// MathClient.cpp : Defines the entry point for the console application.
-// Compile by using: cl /EHsc /link MathLibrary.lib MathClient.cpp
+// MidiClient.cpp 
 
 #include "stdafx.h"
-#include <iostream>
 #include <iostream>
 #include <mutex>
 #include <windows.h>
@@ -12,7 +10,6 @@
 
 using namespace std;
 using namespace WinRT;
-
 
 std::mutex g_mutex;  
 
@@ -44,7 +41,6 @@ void printPortNames(const IWinRTMidiPortWatcher* watcher)
 void midiPortChangedCallback(const IWinRTMidiPortWatcher* watcher, WinRTMidiPortUpdateType update)
 {
     lock_guard<mutex> lock(g_mutex);
-
     string portName = watcher->GetPortType() == WinRTMidiPortType::In ? "In" : "Out";
 
     switch (update)
@@ -58,7 +54,6 @@ void midiPortChangedCallback(const IWinRTMidiPortWatcher* watcher, WinRTMidiPort
         break;
 
     case WinRTMidiPortUpdateType::EnumerationComplete:
-
         cout << "***MIDI " << portName << " port enumeration complete***" << endl;
         break;
     }
@@ -93,7 +88,6 @@ int main(Platform::Array<Platform::String^>^ args)
     {
         //Get pointer to the setIMidiPortChangedCallback function using GetProcAddress:  
         SetIMidiPortChangedCallbackFunc setCallbackFunc = reinterpret_cast<SetIMidiPortChangedCallbackFunc>(::GetProcAddress(dllHandle, "SetMidiPortChangedCallback"));
-
         if (NULL != setCallbackFunc)
         {
             setCallbackFunc(&midiPortChangedCallback);
@@ -101,7 +95,6 @@ int main(Platform::Array<Platform::String^>^ args)
 
         //Get pointer to the setIMidiPortChangedCallback function using GetProcAddress:
         GetIMidiPortWatcherFunc getMidiPortWatcherFunc = reinterpret_cast<GetIMidiPortWatcherFunc>(::GetProcAddress(dllHandle, "GetIMidiPortWatcher"));
-
         if (NULL != getMidiPortWatcherFunc)
         {
             IWinRTMidiPortWatcher* watcher = getMidiPortWatcherFunc(WinRTMidiPortType::In);
@@ -111,7 +104,6 @@ int main(Platform::Array<Platform::String^>^ args)
 
         //Get pointer to the IWinRTMidiInPortFactoryFunc function using GetProcAddress:
         IWinRTMidiInPortFactoryFunc IMidiInPortFactoryFunc = reinterpret_cast<IWinRTMidiInPortFactoryFunc>(::GetProcAddress(dllHandle, "IWinRTMidiInPortFactory"));
-
         if (NULL != IMidiInPortFactoryFunc)
         {
             midiInPort = IMidiInPortFactoryFunc();
@@ -121,6 +113,7 @@ int main(Platform::Array<Platform::String^>^ args)
 
         char c = getchar();
 
+        // clean up Midi objects
         if (midiInPort)
         {
             midiInPort->Destroy();
