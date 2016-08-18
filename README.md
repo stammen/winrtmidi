@@ -3,8 +3,7 @@
 
 ---
 
-<a name="Exercise1" />
-### Exercise 1: Creating a new ANGLE project using a Visual Studio Template ###
+### Adding the WinRTMidi DLL to your Win32 Project ###
 
 In this exercise, you will use Visual Studio 2015 to create a new ANGLE project using the installed ANGLE project templates. You will also build and run the new project.
 
@@ -12,33 +11,30 @@ In this exercise, you will use Visual Studio 2015 to create a new ANGLE project 
 
 1. Right-click on your Visual Studio 2015 project and select **Properties**.
 
-	![Project Properties](Images/using.png?raw=true "Project Properties")
+	![Project Properties](Images/properties.png?raw=true "Project Properties")
 
 	_Project Properties_
 
-1. Select the **XAML App for OpenGL ES (Windows Universal)** template from **Visual C++ | Windows | Universal** to start a new solution.
+1. Select the **General** Property. Set the **Target Platform Version** property to 10.0.10586.0:
 
-	![Selecting the ANGLE XAML template](../../Images/ex1-new-angle-project.PNG?raw=true "Selecting the ANGLE XAML template")
+	![Required General Properties](Images/version.png?raw=true "Required General Properties")
 
-	_Selecting the ANGLE XAML template_
+	_Required General Properties_
 
-1. Name the solution **Breakout** and save it in the **CodeLabs/Workshops/Games/Module3-ANGLE/Source/Ex1/Begin** folder. Click on **OK** to create the solution.
+	
+1. Select the **C++ | General** Property. Add the following paths to the **Addition #using Directories** property:
 
-1. Select **Debug x64** from the Project Configuration and Platform dropdowns.
+	C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcpackages;C:\Program Files (x86)\Windows Kits\10\UnionMetadata
 
-	![Configuring the build target](../../Images/ex2-debug-x64.PNG?raw=true "Configuring the build target")
+	You will also need to enable the **Consume Windows Runtime Extension (Yes/ZW)** property.
 
-	_Configuring the build target_
+	![Required C++ General Properties](Images/using.png?raw=true "Required C++ General Properties")
 
-1. Press the **F5** key to build and run your app. After the build completes, your app should look like the following.
+	_Required C++ General Properties_
 
-	![Sample ANGLE app](../../Images/ex1-sample-angle-app.PNG?raw=true "Sample ANGLE app")
+1. Select the **C++ | Code Generation** Property. Disable the **Enable Minimal Rebuild** property.
 
-	_Sample ANGLE app_
+	![Required C++ Code Generation Properties](Images/gm.png?raw=true "Required C++ Code Generation Properties")
 
-Congratulations. You have created your first Windows 10 UWP ANGLE app.
-
-#### Next ####
-
-- Continue on to [Exercise 2: Integrating your game code with ANGLE](../../Source/Ex2/README.md)
-- Return to [Start](../../README.md)
+	_Required C++ Code Generation Properties_
+	
