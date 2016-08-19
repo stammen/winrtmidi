@@ -1,29 +1,31 @@
 // MidiClient.cpp 
 
 #include "stdafx.h"
-#include "IWinRTMidiPortWatcher.h"
-#include "IWinRTMidiPort.h"
-
+#include "WinRTMidi.h"
 #include <iostream>
 #include <mutex>
-#include <windows.h>
-#include <wrl\wrappers\corewrappers.h>
+#include <string>
 
-using namespace Platform;
-using namespace Microsoft::WRL::Wrappers;
 using namespace std;
 using namespace WinRT;
 
 std::mutex g_mutex;  
 
-void printPortNames(const IWinRTMidiPortWatcher* watcher)
+WinRTWatcherPortCountFunc gWatcherPortCountFunc = nullptr;
+WinRTWatcherPortNameFunc gWatcherPortNameFunc = nullptr;
+WinRTWatcherPortTypeFunc gWatcherPortTypeFunc = nullptr;
+
+
+
+void printPortNames(const WinRTMidiPortWatcherPtr watcher)
 {
     if (watcher == nullptr)
     {
         return;
     }
 
-    if (watcher->GetPortType() == WinRTMidiPortType::In)
+    WinRTMidiPortType type = gWatcherPortTypeFunc(watcher);
+    if (type == WinRTMidiPortType::In)
     {
         cout << "MIDI In Ports" << endl;
     }
@@ -32,19 +34,21 @@ void printPortNames(const IWinRTMidiPortWatcher* watcher)
         cout << "MIDI Out Ports" << endl;
     }
 
-    int nPorts = watcher->GetPortCount();
+    int nPorts = gWatcherPortCountFunc(watcher);
     for (int i = 0; i < nPorts; i++)
     {
-        cout << i << ": " << watcher->GetPortName(i) << endl;
+        const char* name = gWatcherPortNameFunc(watcher, i);
+        cout << i << ": " << gWatcherPortNameFunc(watcher, i) << endl;
     }
 
     cout << endl;
 }
 
-void midiPortChangedCallback(const IWinRTMidiPortWatcher* watcher, WinRTMidiPortUpdateType update)
+void midiPortChangedCallback(const WinRTMidiPortWatcherPtr portWatcher, WinRTMidiPortUpdateType update)
 {
     lock_guard<mutex> lock(g_mutex);
-    string portName = watcher->GetPortType() == WinRTMidiPortType::In ? "In" : "Out";
+    //string portName = portWatcher->GetPortType() == WinRTMidiPortType::In ? "In" : "Out";
+    std::string portName = "In";
 
     switch (update)
     {
@@ -61,32 +65,29 @@ void midiPortChangedCallback(const IWinRTMidiPortWatcher* watcher, WinRTMidiPort
         break;
     }
 
-    printPortNames(watcher);
+    printPortNames(portWatcher);
+
 }
 
-void midiInCallback(const IWinRTMidiInPort* midiInPort, double deltatime, vector< unsigned char > *message)
+
+void midiInCallback(const WinRTMidiInPortPtr port, double timeStamp, const unsigned char* message, unsigned int nBytes)
 {
-    unsigned int nBytes = static_cast<unsigned int>(message->size());
     for (unsigned int i = 0; i < nBytes; i++)
     {
-        cout << "Byte " << i << " = " << (int)message->at(i) << ", ";
+        cout << "Byte " << i << " = " << (int)message[i] << ", ";
     }
 
     if (nBytes > 0)
     {
-        cout << "timestamp = " << deltatime << endl;
+        cout << "timestamp = " << timeStamp << endl;
     }
 }
 
-//int main(Platform::Array<Platform::String^>^ args) 
-[MTAThread]
 int main()
 {
     HINSTANCE dllHandle = NULL;
-    IWinRTMidiInPort* midiInPort = nullptr;
-
-    // Initialize the Windows Runtime.
-    RoInitializeWrapper initialize(RO_INIT_MULTITHREADED);
+    WinRTMidiPtr midiPtr = nullptr;
+    WinRTMidiInPortPtr midiInPort = nullptr;
 
     //Load the dll and keep the handle to it
     dllHandle = LoadLibrary(L"WinRTMidi.dll");
@@ -94,38 +95,60 @@ int main()
     // If the handle is valid, try to get the function addresses. 
     if (NULL != dllHandle)
     {
-        //Get pointer to the setIMidiPortChangedCallback function using GetProcAddress:  
-        SetIMidiPortChangedCallbackFunc setCallbackFunc = reinterpret_cast<SetIMidiPortChangedCallbackFunc>(::GetProcAddress(dllHandle, "SetMidiPortChangedCallback"));
+        //Get pointer to the WinRTWatcherPortCountFunc function using GetProcAddress:  
+        gWatcherPortCountFunc = reinterpret_cast<WinRTWatcherPortCountFunc>(::GetProcAddress(dllHandle, "winrt_watcher_get_port_count"));
+
+        //Get pointer to the WinRTWatcherPortCountFunc function using GetProcAddress:  
+        gWatcherPortNameFunc = reinterpret_cast<WinRTWatcherPortNameFunc>(::GetProcAddress(dllHandle, "winrt_watcher_get_port_name"));
+
+        //Get pointer to the WinRTWatcherPortCountFunc function using GetProcAddress:  
+        gWatcherPortTypeFunc = reinterpret_cast<WinRTWatcherPortTypeFunc>(::GetProcAddress(dllHandle, "winrt_watcher_get_port_type"));
+
+
+        //Get pointer to the WinRTMidiInitializeFunc function using GetProcAddress:  
+        WinRTMidiInitializeFunc MidiInitFunc = reinterpret_cast<WinRTMidiInitializeFunc>(::GetProcAddress(dllHandle, "winrt_initialize_midi"));
+        if (NULL != MidiInitFunc)
+        {
+            midiPtr = MidiInitFunc(midiPortChangedCallback);
+        }
+
+        //Get pointer to the WinRTMidiInitializeFunc function using GetProcAddress:  
+        WinRTMidiFreeFunc MidiFreeFunc = reinterpret_cast<WinRTMidiFreeFunc>(::GetProcAddress(dllHandle, "winrt_free_midi"));
+
+#if 0
+        //Get pointer to the setMidiPortChangedCallback function using GetProcAddress:  
+        SetMidiPortChangedCallbackFunc setCallbackFunc = reinterpret_cast<SetMidiPortChangedCallbackFunc>(::GetProcAddress(dllHandle, "SetMidiPortChangedCallback"));
         if (NULL != setCallbackFunc)
         {
             setCallbackFunc(&midiPortChangedCallback);
         }
 
-        //Get pointer to the setIMidiPortChangedCallback function using GetProcAddress:
-        GetIMidiPortWatcherFunc getMidiPortWatcherFunc = reinterpret_cast<GetIMidiPortWatcherFunc>(::GetProcAddress(dllHandle, "GetIMidiPortWatcher"));
+        //Get pointer to the setMidiPortChangedCallback function using GetProcAddress:
+        GetMidiPortWatcherFunc getMidiPortWatcherFunc = reinterpret_cast<GetMidiPortWatcherFunc>(::GetProcAddress(dllHandle, "GetMidiPortWatcher"));
         if (NULL != getMidiPortWatcherFunc)
         {
             IWinRTMidiPortWatcher* watcher = getMidiPortWatcherFunc(WinRTMidiPortType::In);
             int n = watcher->GetPortCount();
             std::string name = watcher->GetPortName(0);
         }
+#endif
 
-        //Get pointer to the IWinRTMidiInPortFactoryFunc function using GetProcAddress:
-        IWinRTMidiInPortFactoryFunc IMidiInPortFactoryFunc = reinterpret_cast<IWinRTMidiInPortFactoryFunc>(::GetProcAddress(dllHandle, "IWinRTMidiInPortFactory"));
-        if (NULL != IMidiInPortFactoryFunc)
+        //Get pointer to the MidiInPortFreeFunc function using GetProcAddress:
+        WinRTMidiInPortFreeFunc MidiInPortFreeFunc = reinterpret_cast<WinRTMidiInPortFreeFunc>(::GetProcAddress(dllHandle, "winrt_free_midi_in_port"));
+
+
+        //Get pointer to the MidiInPortOpenFunc function using GetProcAddress:
+        WinRTMidiInPortOpenFunc MidiInPortOpenFunc = reinterpret_cast<WinRTMidiInPortOpenFunc>(::GetProcAddress(dllHandle, "winrt_open_midi_in_port"));
+        if (NULL != MidiInPortOpenFunc)
         {
-            midiInPort = IMidiInPortFactoryFunc();
-            midiInPort->OpenPort(0);
-            midiInPort->SetCallback(&midiInCallback);
+            midiInPort = MidiInPortOpenFunc(midiPtr, 0, midiInCallback);
         }
 
         char c = getchar();
 
         // clean up Midi objects
-        if (midiInPort)
-        {
-            midiInPort->Destroy();
-        }
+        MidiInPortFreeFunc(midiInPort);
+        MidiFreeFunc(midiPtr);
 
         //Free the library:
         FreeLibrary(dllHandle);

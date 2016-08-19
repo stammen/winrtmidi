@@ -26,13 +26,11 @@ namespace WinRT
         return stringUtf8;
     }
 
-    WinRTMidiPortWatcher::WinRTMidiPortWatcher(WinRTMidiPortType type)
+    WinRTMidiPortWatcher::WinRTMidiPortWatcher(WinRTMidiPortType type, MidiPortChangedCallback callback)
         : mPortEnumerationComplete(false)
-        , mPortChangedCallback(nullptr)
+        , mPortChangedCallback(callback)
         , mPortType(type)
     {
-        mIPortWatcher = std::make_shared<MidiPortWatcherImp>();
-
         switch (type)
         {
         case WinRTMidiPortType::In:
@@ -64,17 +62,10 @@ namespace WinRT
         }
     }
 
-   std::string WinRTMidiPortWatcher::GetPortName(unsigned int portNumber)
+   const std::string& WinRTMidiPortWatcher::GetPortName(unsigned int portNumber)
     {
         CheckForEnumeration();
-        if (portNumber >= mPortInfo.size())
-        {
-            return "";
-        }
-        else
-        {
-            return PlatformStringToString(mPortInfo[portNumber].get()->mName);
-        }
+        return mPortInfo[portNumber].get()->mName;
     }
 
     Platform::String^ WinRTMidiPortWatcher::GetPortId(unsigned int portNumber)
@@ -98,7 +89,7 @@ namespace WinRT
 
     void WinRTMidiPortWatcher::OnDeviceAdded(DeviceWatcher^ sender, DeviceInformation^ args)
     {
-        mPortInfo.emplace_back(new WinRTMidiPortInfo(args->Name, args->Id));
+        mPortInfo.emplace_back(new WinRTMidiPortInfo(PlatformStringToString(args->Name), args->Id));
         if (mPortEnumerationComplete)
         {
             OnMidiPortUpdated(WinRTMidiPortUpdateType::PortAdded);
@@ -138,31 +129,19 @@ namespace WinRT
 
     void WinRTMidiPortWatcher::OnMidiPortUpdated(WinRTMidiPortUpdateType update)
     {
+        MidiPortWatcherWrapper wrapper(this);
+
         if (mPortChangedCallback != nullptr)
         {
-            mIPortWatcher->SetWatcher(this);
-            mPortChangedCallback(mIPortWatcher.get(), update);
+            mPortChangedCallback(&wrapper, update);
         }
 
         // ...then fire the event:
         mMidiPortUpdateEventHander(this, update);
     }
 
-    const IWinRTMidiPortWatcher* WinRTMidiPortWatcher::GetIMidiPortWatcher()
-    {
-        mIPortWatcher->SetWatcher(this);
-        return mIPortWatcher.get();
-    }
 
-    extern "C" __declspec(dllexport) void __cdecl SetMidiPortChangedCallback(IMidiPortChangedCallbackType& callback)
-    {
-        auto midiInPortWatcher = WinRTMidiInPortWatcher::getInstance();
-        midiInPortWatcher->SetMidiPortChangedCallback(callback);
-
-        auto midiOutPortWatcher = WinRTMidiOutPortWatcher::getInstance();
-        midiOutPortWatcher->SetMidiPortChangedCallback(callback);
-    }
-
+# if 0
     extern "C" __declspec(dllexport) const IWinRTMidiPortWatcher* __cdecl GetIMidiPortWatcher(WinRTMidiPortType portType)
     {
         if (portType == WinRTMidiPortType::In)
@@ -175,5 +154,6 @@ namespace WinRT
         }
         return nullptr;
     }
+#endif
 };
 

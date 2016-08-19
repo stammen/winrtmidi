@@ -22,7 +22,7 @@
     <ProjectGuid>{D9B9A919-EEB9-4A83-BD27-2991DB01490A}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>MidiClient</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.10586.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -88,9 +88,10 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalUsingDirectories>C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcpackages;C:\Program Files (x86)\Windows Kits\10\UnionMetadata</AdditionalUsingDirectories>
-      <CompileAsWinRT>true</CompileAsWinRT>
-      <MinimalRebuild>false</MinimalRebuild>
+      <AdditionalUsingDirectories>
+      </AdditionalUsingDirectories>
+      <CompileAsWinRT>false</CompileAsWinRT>
+      <MinimalRebuild>true</MinimalRebuild>
       <AdditionalIncludeDirectories>..\WinRTMidi</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -105,9 +106,10 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalUsingDirectories>C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcpackages;C:\Program Files (x86)\Windows Kits\10\UnionMetadata</AdditionalUsingDirectories>
-      <CompileAsWinRT>true</CompileAsWinRT>
-      <MinimalRebuild>false</MinimalRebuild>
+      <AdditionalUsingDirectories>
+      </AdditionalUsingDirectories>
+      <CompileAsWinRT>false</CompileAsWinRT>
+      <MinimalRebuild>true</MinimalRebuild>
       <AdditionalIncludeDirectories>..\WinRTMidi</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -124,8 +126,9 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalUsingDirectories>C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcpackages;C:\Program Files (x86)\Windows Kits\10\UnionMetadata</AdditionalUsingDirectories>
-      <CompileAsWinRT>true</CompileAsWinRT>
+      <AdditionalUsingDirectories>
+      </AdditionalUsingDirectories>
+      <CompileAsWinRT>false</CompileAsWinRT>
       <AdditionalIncludeDirectories>..\WinRTMidi</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -144,8 +147,9 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalUsingDirectories>C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcpackages;C:\Program Files (x86)\Windows Kits\10\UnionMetadata</AdditionalUsingDirectories>
-      <CompileAsWinRT>true</CompileAsWinRT>
+      <AdditionalUsingDirectories>
+      </AdditionalUsingDirectories>
+      <CompileAsWinRT>false</CompileAsWinRT>
       <AdditionalIncludeDirectories>..\WinRTMidi</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>

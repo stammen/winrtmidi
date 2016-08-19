@@ -36,6 +36,9 @@
     <ClInclude Include="IWinRTMidiPort.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="WinRTMidiImpl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -45,6 +48,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="WinRTMidi.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="WinRTMidiImpl.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

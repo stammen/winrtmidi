@@ -1,165 +1,60 @@
 #include "WinRTMidi.h"
+#include "WinRTMidiImpl.h"
 #include "WinRTMidiportWatcher.h"
-#include <ppltasks.h>
+#include <wrl\wrappers\corewrappers.h>
 
-using namespace WinRT;
-using namespace Windows::Devices::Midi;
-using namespace Windows::Storage::Streams;
-using namespace std::placeholders;
-using namespace concurrency;
-
-/*****************************************************
-    MidiInPortImpl
-*****************************************************/
-
-MidiInPortImpl::MidiInPortImpl()
-    : mCallback(nullptr)
+namespace WinRT
 {
-    mPort = ref new WinRTMidiInPort;
-    mPort->SetMidiInCallback(std::bind(&MidiInPortImpl::MidiInCallback, this, _1, _2));
-}
-
-MidiInPortImpl::~MidiInPortImpl()
-{
-
-}
-
-void MidiInPortImpl::OpenPort(unsigned int index)
-{
-    mPort->OpenPort(index);
-}
-
-void MidiInPortImpl::ClosePort()
-{
-    mPort->ClosePort();
-}
-
-void MidiInPortImpl::MidiInCallback(double timestamp, std::vector<unsigned char>* message)
-{
-    if (mCallback)
+    WinRTMidiPtr winrt_initialize_midi(MidiPortChangedCallback callback)
     {
-        mCallback(this, timestamp, message);
+        // Initialize the Windows Runtime.
+        static Microsoft::WRL::Wrappers::RoInitializeWrapper initialize(RO_INIT_MULTITHREADED);
+        return (WinRTMidiPtr) new WinRTMidi(callback);
     }
-}
 
-void MidiInPortImpl::RemoveCallback()
-{
-    mCallback = nullptr;
-}
-
-void MidiInPortImpl::SetCallback(const IMidiInCallbackType& callback)
-{
-    mCallback = callback;
-}
-
-void MidiInPortImpl::Destroy()
-{
-    delete this;
-}
-
-
-/*****************************************************
-    WinRTMidiInPort
-*****************************************************/
-
-
-WinRTMidiInPort::WinRTMidiInPort()
-    : mMessageReceivedCallback(nullptr)
-{
-}
-
-WinRTMidiInPort::~WinRTMidiInPort()
-{
-
-}
-
-//Blocks until port is open
-void WinRTMidiInPort::OpenPort(int index)
-{
-    auto id = WinRTMidiInPortWatcher::getInstance()->GetPortId(index);
-    OpenPort(id);
-}
-
-
-//Blocks until port is open
-void WinRTMidiInPort::OpenPort(Platform::String^ id)
-{
-    mLastMessageTime = 0;
-    mFirstMessage = true;
-    auto task = create_task(MidiInPort::FromIdAsync(id));
-
-    // wait for port to be created
-    task.wait();
-
-    // get results
-    try
+    void winrt_free_midi(WinRTMidiPtr midi)
     {
-        mMidiInPort = task.get();
-        mMidiInPort->MessageReceived += ref new Windows::Foundation::TypedEventHandler<MidiInPort ^, MidiMessageReceivedEventArgs ^>(this, &WinRTMidiInPort::OnMidiInMessageReceived);
-    }
-    catch (Platform::Exception^ ex)
-    {
-
-    }
-}
-
-void WinRTMidiInPort::ClosePort(void) 
-{
-    mMidiInPort = nullptr;
-}
-
-void WinRTMidiInPort::OnMidiInMessageReceived(MidiInPort^ sender, MidiMessageReceivedEventArgs^ args)
-{
-    if (mMessageReceivedCallback)
-    {
-        if (mFirstMessage)
+        if (midi)
         {
-            mFirstMessage = false;
-            mLastMessageTime = args->Message->Timestamp.Duration;
+            delete midi;
         }
-
-        double timestamp = (args->Message->Timestamp.Duration - mLastMessageTime) * .0001;
-        mLastMessageTime = args->Message->Timestamp.Duration;
-
-        auto buffer = args->Message->RawData;
-        DataReader^ reader = DataReader::FromBuffer(buffer);
-        mMidiMessage.resize(buffer->Length);
-        reader->ReadBytes(Platform::ArrayReference<unsigned char>(&mMidiMessage[0], buffer->Length));
-
-        mMessageReceivedCallback((double)timestamp, &mMidiMessage);
-        mMidiMessage.clear();
     }
-}
 
-
-/*****************************************************
-    WinRTMidiOutPort
-*****************************************************/
-
-WinRTMidiOutPort::WinRTMidiOutPort()
-{
-}
-
-WinRTMidiOutPort::~WinRTMidiOutPort()
-{
-}
-
-//Blocks until port is open
-void WinRTMidiOutPort::OpenPort(Platform::String^ id)
-{
-    try
+    WinRTMidiInPortPtr winrt_open_midi_in_port(WinRTMidiPtr midi, unsigned int index, WinRTMidiInCallback callback)
     {
-        auto task = MidiOutPort::FromIdAsync(id);
-        mMidiOutPort = task->GetResults();
+        WinRTMidi* midiPtr = (WinRTMidi*)midi;
+        auto id = midiPtr->getPortId(WinRTMidiPortType::In, index);
+        auto port = ref new WinRTMidiInPort;
+        port->OpenPort(id);
+        return (WinRTMidiInPortPtr) new MidiInPortWrapper(port, callback);
     }
-    catch (Platform::Exception^ ex)
+
+    void winrt_free_midi_in_port(WinRTMidiInPortPtr port)
     {
-
+        MidiInPortWrapper* wrapper = (MidiInPortWrapper*)port;
+        if (wrapper)
+        {
+            delete wrapper;
+        }
     }
-}
 
-void WinRTMidiOutPort::ClosePort(void)
-{
-    mMidiOutPort = nullptr;
+    // WinRT Midi Watcher Functions
+    unsigned int winrt_watcher_get_port_count(WinRTMidiPortWatcherPtr watcher)
+    {
+        MidiPortWatcherWrapper* wrapper = (MidiPortWatcherWrapper*)watcher;
+        return wrapper->GetWatcher()->GetPortCount();
+    }
+
+    const char* winrt_watcher_get_port_name(WinRTMidiPortWatcherPtr watcher, unsigned int index)
+    {
+        MidiPortWatcherWrapper* wrapper = (MidiPortWatcherWrapper*)watcher;
+        return wrapper->GetWatcher()->GetPortName(index).c_str();
+    }
+
+    WinRTMidiPortType winrt_watcher_get_port_type(WinRTMidiPortWatcherPtr watcher)
+    {
+        MidiPortWatcherWrapper* wrapper = (MidiPortWatcherWrapper*)watcher;
+        return wrapper->GetWatcher()->GetPortType();
+    }
 }
 

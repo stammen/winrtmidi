@@ -1,80 +1,50 @@
 #pragma once
 
-#include <functional>
-#include <vector>
+#include <Windows.h>
 
-#include "IWinRTMidiPort.h"
+#if defined(WINRTMIDI_EXPORT)
+#define WINRTMIDI_API extern "C" __declspec(dllexport)
+#else
+#define WINRTMIDI_API extern "C" __declspec(dllimport)
+#endif
 
 namespace WinRT
 {
-    // Midi In Message callback
-    typedef std::function<void(double timestamp, std::vector<unsigned char>* message)> MidiInMessageReceivedCallbackType;
+    enum class WinRTMidiPortType : int { In, Out };
+    enum class WinRTMidiPortUpdateType : int { PortAdded, PortRemoved, EnumerationComplete };
 
-    public ref class WinRTMidiInPort sealed
-    {
-    public:
-        WinRTMidiInPort();
-        virtual ~WinRTMidiInPort();
+    typedef void* WinRTMidiPtr;
+    typedef void* WinRTMidiPortWatcherPtr;
+    typedef void* WinRTMidiInPortPtr;
+    typedef void* WinRTMidiOutPortPtr;
 
-        void OpenPort(int index);
-        void ClosePort(void);
+    // Midi port changed callback
+    typedef void(*MidiPortChangedCallback) (const WinRTMidiPortWatcherPtr portWatcher, WinRTMidiPortUpdateType update);
 
-        void RemoveMidiInCallback() {
-            mMessageReceivedCallback = nullptr;
-        };
+    // Midi In callback
+    typedef void(*WinRTMidiInCallback) (const WinRTMidiInPortPtr port, double timeStamp, const unsigned char* message, unsigned int nBytes);
 
-    internal:
-        // needs to be internal as MidiInMessageReceivedCallbackType is not a WinRT type
-        void SetMidiInCallback(const MidiInMessageReceivedCallbackType& callback) {
-            mMessageReceivedCallback = callback;
-        };
+    // WinRT Midi Functions
+    typedef WinRTMidiPtr(__cdecl *WinRTMidiInitializeFunc)(MidiPortChangedCallback callback);
+    WINRTMIDI_API WinRTMidiPtr __cdecl winrt_initialize_midi(MidiPortChangedCallback callback);
+ 
+    typedef void(__cdecl *WinRTMidiFreeFunc)(WinRTMidiPtr midi);
+    WINRTMIDI_API void __cdecl winrt_free_midi(WinRTMidiPtr midi);
 
-    private:
-        void OpenPort(Platform::String^ id);
-        void OnMidiInMessageReceived(Windows::Devices::Midi::MidiInPort^ sender, Windows::Devices::Midi::MidiMessageReceivedEventArgs^ args);
-        Windows::Devices::Midi::MidiInPort^ mMidiInPort;
-        long long mLastMessageTime;
-        bool mFirstMessage;
-        MidiInMessageReceivedCallbackType mMessageReceivedCallback;
-        std::vector<unsigned char> mMidiMessage;
-    };
+    // WinRT Midi In Port Functions
+    typedef WinRTMidiInPortPtr(__cdecl *WinRTMidiInPortOpenFunc)(WinRTMidiPtr midi, unsigned int index, WinRTMidiInCallback callback);
+    WINRTMIDI_API WinRTMidiInPortPtr __cdecl winrt_open_midi_in_port(WinRTMidiPtr midi, unsigned int index, WinRTMidiInCallback callback);
 
+    typedef void(__cdecl *WinRTMidiInPortFreeFunc)(WinRTMidiInPortPtr port);
+    WINRTMIDI_API void __cdecl winrt_free_midi_in_port(WinRTMidiInPortPtr port);
 
-    public ref class WinRTMidiOutPort sealed
-    {
-    public:
-        WinRTMidiOutPort();
-        virtual ~WinRTMidiOutPort();
-        
-        void OpenPort(Platform::String^ id);
-        void ClosePort(void);
+    // WinRT Midi Watcher Functions
+    typedef unsigned int(__cdecl *WinRTWatcherPortCountFunc)(WinRTMidiPortWatcherPtr watcher);
+    WINRTMIDI_API unsigned int __cdecl winrt_watcher_get_port_count(WinRTMidiPortWatcherPtr watcher);
 
-    internal:
+    typedef const char*(__cdecl *WinRTWatcherPortNameFunc)(WinRTMidiPortWatcherPtr watcher, unsigned int index);
+    WINRTMIDI_API const char* __cdecl winrt_watcher_get_port_name(WinRTMidiPortWatcherPtr watcher, unsigned int index);
 
-    private:
-        Windows::Devices::Midi::IMidiOutPort^ mMidiOutPort;
-    };
-
-    class MidiInPortImpl : public IWinRTMidiInPort {
-    public:
-        MidiInPortImpl::MidiInPortImpl();
-        virtual MidiInPortImpl::~MidiInPortImpl();
-        virtual void OpenPort(unsigned int index) override;
-        virtual void ClosePort() override;
-        virtual void RemoveCallback() override;
-        virtual void SetCallback(const IMidiInCallbackType& callback) override;
-        virtual void Destroy() override;
-
-    private:
-        void MidiInCallback(double timestamp, std::vector<unsigned char>* message);
-
-        WinRTMidiInPort^ mPort;
-        IMidiInCallbackType mCallback;
-    };
-
-    extern "C" __declspec(dllexport) IWinRTMidiInPort* __cdecl IWinRTMidiInPortFactory()
-    {
-        return new MidiInPortImpl;
-    }
-};
-
+    typedef WinRTMidiPortType(__cdecl *WinRTWatcherPortTypeFunc)(WinRTMidiPortWatcherPtr watcher);
+    WINRTMIDI_API WinRTMidiPortType __cdecl winrt_watcher_get_port_type(WinRTMidiPortWatcherPtr watcher);
+}
