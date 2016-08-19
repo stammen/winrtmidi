@@ -1,12 +1,14 @@
 #include "WinRTMidi.h"
 #include "WinRTMidiimpl.h"
 #include <ppltasks.h>
+#include <robuffer.h> 
 
 using namespace WinRT;
 using namespace Windows::Devices::Midi;
 using namespace Windows::Storage::Streams;
 using namespace std::placeholders;
 using namespace concurrency;
+using namespace Microsoft::WRL;
 
 
 /*****************************************************
@@ -66,12 +68,16 @@ void WinRTMidiInPort::OnMidiInMessageReceived(MidiInPort^ sender, MidiMessageRec
         mLastMessageTime = args->Message->Timestamp.Duration;
 
         auto buffer = args->Message->RawData;
-        DataReader^ reader = DataReader::FromBuffer(buffer);
-        mMidiMessage.resize(buffer->Length);
-        reader->ReadBytes(Platform::ArrayReference<unsigned char>(&mMidiMessage[0], buffer->Length));
 
-        mMessageReceivedCallback((WinRTMidiInPortPtr) this, (double)timestamp, mMidiMessage.data(), static_cast<unsigned int>(mMidiMessage.size()));
-        mMidiMessage.clear();
+        // Obtain IBufferByteAccess 
+        ComPtr<IBufferByteAccess> pBufferByteAccess;
+        ComPtr<IUnknown> pBuffer((IUnknown*)buffer);
+        pBuffer.As(&pBufferByteAccess);
+
+        // Get pointer to iBuffer bytes 
+        byte* pData;
+        pBufferByteAccess->Buffer(&pData);
+        mMessageReceivedCallback((WinRTMidiInPortPtr) this, timestamp, pData, buffer->Length);
     }
 }
 

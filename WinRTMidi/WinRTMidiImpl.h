@@ -1,7 +1,5 @@
 #pragma once
 
-#include <vector>
-
 #include "WinRTMidi.h"
 #include "WinRTMidiPortWatcher.h"
 
@@ -32,7 +30,6 @@ namespace WinRT
         long long mLastMessageTime;
         bool mFirstMessage;
         WinRTMidiInCallback mMessageReceivedCallback;
-        std::vector<unsigned char> mMidiMessage;
     };
 
     public ref class WinRTMidiOutPort sealed
