@@ -11,6 +11,7 @@ using namespace WinRT;
 
 std::mutex g_mutex;  
 
+// WinRTMidi DLL function pointers
 WinRTWatcherPortCountFunc gWatcherPortCountFunc = nullptr;
 WinRTWatcherPortNameFunc gWatcherPortNameFunc = nullptr;
 WinRTWatcherPortTypeFunc gWatcherPortTypeFunc = nullptr;
@@ -70,7 +71,6 @@ void midiPortChangedCallback(const WinRTMidiPortWatcherPtr portWatcher, WinRTMid
     printPortNames(portWatcher);
 }
 
-
 void midiInCallback(const WinRTMidiInPortPtr port, double timeStamp, const unsigned char* message, unsigned int nBytes)
 {
     lock_guard<mutex> lock(g_mutex);
@@ -91,15 +91,16 @@ int main()
     WinRTMidiPtr midiPtr = nullptr;
     WinRTMidiInPortPtr midiInPort = nullptr;
 
-    //Load the dll and keep the handle to it
+    //Load the WinRTMidi dll
     dllHandle = LoadLibrary(L"WinRTMidi.dll");
-
     if (NULL == dllHandle)
     {
         cout << "Unable to load WinRTMidi.dll" << endl;
         return -1;
     }
   
+    // GetWinRTMidi DLL function pointers. Error checking needs to be added!
+
     //Get pointer to the WinRTMidiInitializeFunc function using GetProcAddress:  
     gMidiInitFunc = reinterpret_cast<WinRTMidiInitializeFunc>(::GetProcAddress(dllHandle, "winrt_initialize_midi"));
 
