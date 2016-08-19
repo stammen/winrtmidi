@@ -90,7 +90,6 @@ int main()
     HINSTANCE dllHandle = NULL;
     WinRTMidiPtr midiPtr = nullptr;
     WinRTMidiInPortPtr midiInPort = nullptr;
-    WinRTMidiInPortPtr midiInPort1 = nullptr;
 
     //Load the dll and keep the handle to it
     dllHandle = LoadLibrary(L"WinRTMidi.dll");
@@ -127,9 +126,6 @@ int main()
 
     // open Midi In port 0
     midiInPort = gMidiInPortOpenFunc(midiPtr, 0, midiInCallback);
-
-    // open Midi In port 1
-    midiInPort1 = gMidiInPortOpenFunc(midiPtr, 1, midiInCallback);
 
     // process midi until user presses key on keyboard
     char c = getchar();
