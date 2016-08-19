@@ -10,11 +10,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MidiClient", "MidiClient\Mi
 		{B9CA72C7-1B55-4A22-B88D-529514E70388} = {B9CA72C7-1B55-4A22-B88D-529514E70388}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ConsoleApplication1", "ConsoleApplication1\ConsoleApplication1\ConsoleApplication1.vcxproj", "{893ECB18-A1F0-4130-969C-A680644CE114}"
-	ProjectSection(ProjectDependencies) = postProject
-		{B9CA72C7-1B55-4A22-B88D-529514E70388} = {B9CA72C7-1B55-4A22-B88D-529514E70388}
-	EndProjectSection
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -39,13 +34,6 @@ Global
 		{D9B9A919-EEB9-4A83-BD27-2991DB01490A}.Release|x64.Build.0 = Release|x64
 		{D9B9A919-EEB9-4A83-BD27-2991DB01490A}.Release|x86.ActiveCfg = Release|Win32
 		{D9B9A919-EEB9-4A83-BD27-2991DB01490A}.Release|x86.Build.0 = Release|Win32
-		{893ECB18-A1F0-4130-969C-A680644CE114}.Debug|x64.ActiveCfg = Debug|Win32
-		{893ECB18-A1F0-4130-969C-A680644CE114}.Debug|x64.Build.0 = Debug|Win32
-		{893ECB18-A1F0-4130-969C-A680644CE114}.Debug|x86.ActiveCfg = Debug|Win32
-		{893ECB18-A1F0-4130-969C-A680644CE114}.Debug|x86.Build.0 = Debug|Win32
-		{893ECB18-A1F0-4130-969C-A680644CE114}.Release|x64.ActiveCfg = Release|Win32
-		{893ECB18-A1F0-4130-969C-A680644CE114}.Release|x86.ActiveCfg = Release|Win32
-		{893ECB18-A1F0-4130-969C-A680644CE114}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
