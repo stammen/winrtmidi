@@ -10,8 +10,8 @@
 
 namespace WinRT
 {
-    enum class WinRTMidiPortType : int { In, Out };
-    enum class WinRTMidiPortUpdateType : int { PortAdded, PortRemoved, EnumerationComplete };
+    enum WinRTMidiPortType { In, Out };
+    enum WinRTMidiPortUpdateType { PortAdded, PortRemoved, EnumerationComplete };
 
     typedef void* WinRTMidiPtr;
     typedef void* WinRTMidiPortWatcherPtr;
