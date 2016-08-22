@@ -20,6 +20,12 @@ namespace WinRT
         }
     }
 
+    const WinRTMidiPortWatcherPtr winrt_get_portwatcher(WinRTMidiPtr midi, WinRTMidiPortType type)
+    {
+        WinRTMidi* midiPtr = (WinRTMidi*)midi;
+        return midiPtr->GetPortWatcherWrapper(type);
+    }
+
     WinRTMidiInPortPtr winrt_open_midi_in_port(WinRTMidiPtr midi, unsigned int index, WinRTMidiInCallback callback)
     {
         WinRTMidi* midiPtr = (WinRTMidi*)midi;
@@ -36,6 +42,31 @@ namespace WinRT
         {
             delete wrapper;
         }
+    }
+
+    // WinRT Midi Out port functions
+    WinRTMidiOutPortPtr winrt_open_midi_out_port(WinRTMidiPtr midi, unsigned int index)
+    {
+        WinRTMidi* midiPtr = (WinRTMidi*)midi;
+        auto id = midiPtr->getPortId(WinRTMidiPortType::Out, index);
+        auto port = ref new WinRTMidiOutPort;
+        port->OpenPort(id);
+        return (WinRTMidiOutPortPtr) new MidiOutPortWrapper(port);
+    }
+
+    void winrt_free_midi_out_port(WinRTMidiOutPortPtr port)
+    {
+        MidiOutPortWrapper* wrapper = (MidiOutPortWrapper*)port;
+        if (wrapper)
+        {
+            delete wrapper;
+        }
+    }
+
+    void winrt_midi_out_port_send(WinRTMidiOutPortPtr port, const unsigned char* message, unsigned int nBytes)
+    {
+        MidiOutPortWrapper* wrapper = (MidiOutPortWrapper*)port;
+        wrapper->getPort()->Send(message, nBytes);
     }
 
     // WinRT Midi Watcher Functions

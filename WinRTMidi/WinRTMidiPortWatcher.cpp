@@ -62,7 +62,7 @@ namespace WinRT
         }
     }
 
-   const std::string& WinRTMidiPortWatcher::GetPortName(unsigned int portNumber)
+    const std::string& WinRTMidiPortWatcher::GetPortName(unsigned int portNumber)
     {
         CheckForEnumeration();
         return mPortInfo[portNumber].get()->mName;
@@ -136,24 +136,8 @@ namespace WinRT
             mPortChangedCallback(&wrapper, update);
         }
 
-        // ...then fire the event:
         mMidiPortUpdateEventHander(this, update);
     }
+}
 
-
-# if 0
-    extern "C" __declspec(dllexport) const IWinRTMidiPortWatcher* __cdecl GetIMidiPortWatcher(WinRTMidiPortType portType)
-    {
-        if (portType == WinRTMidiPortType::In)
-        {
-            return WinRTMidiInPortWatcher::getInstance()->GetIMidiPortWatcher();
-        }
-        else if (portType == WinRTMidiPortType::Out)
-        {
-            return WinRTMidiOutPortWatcher::getInstance()->GetIMidiPortWatcher();
-        }
-        return nullptr;
-    }
-#endif
-};
 

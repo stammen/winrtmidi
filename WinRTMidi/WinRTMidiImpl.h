@@ -2,6 +2,7 @@
 
 #include "WinRTMidi.h"
 #include "WinRTMidiPortWatcher.h"
+#include <memory>
 
 namespace WinRT
 {
@@ -42,50 +43,30 @@ namespace WinRT
         void ClosePort(void);
 
     internal:
+        void Send(const unsigned char* message, unsigned int nBytes);
 
     private:
+        byte* getIBufferDataPtr(Windows::Storage::Streams::IBuffer^ buffer);
+
         Windows::Devices::Midi::IMidiOutPort^ mMidiOutPort;
+        Windows::Storage::Streams::IBuffer^ mBuffer;
+        byte* mBufferData;
     };
 
     class WinRTMidi
     {
     public:
-        WinRTMidi(MidiPortChangedCallback callback)
-        {
-            mMidiInPortWatcher = ref new WinRTMidiPortWatcher(WinRTMidiPortType::In, callback);
-            mMidiOutPortWatcher = ref new WinRTMidiPortWatcher(WinRTMidiPortType::Out, callback);
-        }
-
-        WinRTMidiPortWatcher^ GetWatcher(WinRTMidiPortType type)
-        {
-            switch (type)
-            {
-            case WinRTMidiPortType::In:
-                return mMidiInPortWatcher;
-                break;
-            case WinRTMidiPortType::Out:
-                return mMidiOutPortWatcher;
-                break;
-            }
-
-            return nullptr;
-        }
-
-        Platform::String^ getPortId(WinRTMidiPortType type, unsigned int index)
-        {
-            auto watcher = GetWatcher(type);
-            if (watcher)
-            {
-                return watcher->GetPortId(index);
-            }
-
-            return nullptr;
-        }
+        WinRTMidi(MidiPortChangedCallback callback);
+        WinRTMidiPortWatcher^ GetPortWatcher(WinRTMidiPortType type);
+        WinRTMidiPortWatcherPtr GetPortWatcherWrapper(WinRTMidiPortType type);
+        Platform::String^ getPortId(WinRTMidiPortType type, unsigned int index);
 
     private:
 
         WinRTMidiPortWatcher^ mMidiInPortWatcher;
         WinRTMidiPortWatcher^ mMidiOutPortWatcher;
+        std::shared_ptr<MidiPortWatcherWrapper> mMidiInPortWatcherWrapper;
+        std::shared_ptr<MidiPortWatcherWrapper> mMidiOutPortWatcherWrapper;
     };
 
     class MidiInPortWrapper
@@ -97,7 +78,23 @@ namespace WinRT
             mPort->SetMidiInCallback(callback);
         }
 
+        WinRTMidiInPort^ getPort() { return mPort; };
+
+    private:
         WinRTMidiInPort^ mPort;
+    };
+
+    class MidiOutPortWrapper
+    {
+    public:
+        MidiOutPortWrapper(WinRTMidiOutPort^ port)
+            : mPort(port)
+        {}
+
+        WinRTMidiOutPort^ getPort() { return mPort; };
+
+    private:
+        WinRTMidiOutPort^ mPort;
     };
 };
 

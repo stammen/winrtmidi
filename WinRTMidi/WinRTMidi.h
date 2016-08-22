@@ -31,12 +31,25 @@ namespace WinRT
     typedef void(__cdecl *WinRTMidiFreeFunc)(WinRTMidiPtr midi);
     WINRTMIDI_API void __cdecl winrt_free_midi(WinRTMidiPtr midi);
 
+    typedef const WinRTMidiPortWatcherPtr(__cdecl *WinRTMidiGetPortWatcherFunc)(WinRTMidiPtr midi, WinRTMidiPortType type);
+    WINRTMIDI_API const WinRTMidiPortWatcherPtr __cdecl winrt_get_portwatcher(WinRTMidiPtr midi, WinRTMidiPortType type);
+
     // WinRT Midi In Port Functions
     typedef WinRTMidiInPortPtr(__cdecl *WinRTMidiInPortOpenFunc)(WinRTMidiPtr midi, unsigned int index, WinRTMidiInCallback callback);
     WINRTMIDI_API WinRTMidiInPortPtr __cdecl winrt_open_midi_in_port(WinRTMidiPtr midi, unsigned int index, WinRTMidiInCallback callback);
 
     typedef void(__cdecl *WinRTMidiInPortFreeFunc)(WinRTMidiInPortPtr port);
     WINRTMIDI_API void __cdecl winrt_free_midi_in_port(WinRTMidiInPortPtr port);
+
+    // WinRT Midi Out Port Functions
+    typedef WinRTMidiOutPortPtr(__cdecl *WinRTMidiOutPortOpenFunc)(WinRTMidiPtr midi, unsigned int index);
+    WINRTMIDI_API WinRTMidiOutPortPtr __cdecl winrt_open_midi_out_port(WinRTMidiPtr midi, unsigned int index);
+
+    typedef void(__cdecl *WinRTMidiOutPortFreeFunc)(WinRTMidiOutPortPtr port);
+    WINRTMIDI_API void __cdecl winrt_free_midi_out_port(WinRTMidiOutPortPtr port);
+
+    typedef void(__cdecl *WinRTMidiOutPortSendFunc)(WinRTMidiOutPortPtr port, const unsigned char* message, unsigned int nBytes);
+    WINRTMIDI_API void __cdecl winrt_midi_out_port_send(WinRTMidiOutPortPtr port, const unsigned char* message, unsigned int nBytes);
 
     // WinRT Midi Watcher Functions
     typedef unsigned int(__cdecl *WinRTWatcherPortCountFunc)(WinRTMidiPortWatcherPtr watcher);
