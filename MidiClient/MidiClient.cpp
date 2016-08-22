@@ -3,13 +3,13 @@
 #include "stdafx.h"
 #include "WinRTMidi.h"
 #include <iostream>
-#include <mutex>
 #include <string>
 
 using namespace std;
 using namespace WinRT;
 
-std::mutex g_mutex;  
+CRITICAL_SECTION gCriticalSection;
+
 
 // WinRTMidi DLL function pointers
 WinRTWatcherPortCountFunc   gWatcherPortCountFunc = nullptr;
@@ -35,7 +35,7 @@ void printPortNames(const WinRTMidiPortWatcherPtr watcher)
     }
 
     WinRTMidiPortType type = gWatcherPortTypeFunc(watcher);
-    if (type == WinRTMidiPortType::In)
+    if (type == In)
     {
         cout << "MIDI In Ports" << endl;
     }
@@ -56,25 +56,26 @@ void printPortNames(const WinRTMidiPortWatcherPtr watcher)
 
 void midiPortChangedCallback(const WinRTMidiPortWatcherPtr portWatcher, WinRTMidiPortUpdateType update)
 {
-    lock_guard<mutex> lock(g_mutex);
-    string portName = gWatcherPortTypeFunc(portWatcher) == WinRTMidiPortType::In ? "In" : "Out";
+    EnterCriticalSection(&gCriticalSection);
+    string portName = gWatcherPortTypeFunc(portWatcher) == In ? "In" : "Out";
 
     switch (update)
     {
-    case WinRTMidiPortUpdateType::PortAdded:
+    case PortAdded:
         cout << "***MIDI " << portName << " port added***" << endl;
         break;
 
-    case WinRTMidiPortUpdateType::PortRemoved:
+    case PortRemoved:
         cout << "***MIDI " << portName << " port removed***" << endl;
         break;
 
-    case WinRTMidiPortUpdateType::EnumerationComplete:
+    case EnumerationComplete:
         cout << "***MIDI " << portName << " port enumeration complete***" << endl;
         break;
     }
 
     printPortNames(portWatcher);
+    LeaveCriticalSection(&gCriticalSection);
 }
 
 void midiInCallback(const WinRTMidiInPortPtr port, double timeStamp, const unsigned char* message, unsigned int nBytes)
@@ -84,7 +85,7 @@ void midiInCallback(const WinRTMidiInPortPtr port, double timeStamp, const unsig
         gMidiOutPortSendFunc(gMidiOutPort, message, nBytes);
     }
 
-    lock_guard<mutex> lock(g_mutex);
+    EnterCriticalSection(&gCriticalSection);
     for (unsigned int i = 0; i < nBytes; i++)
     {
         cout << "Byte " << i << " = " << (int)message[i] << ", ";
@@ -94,6 +95,7 @@ void midiInCallback(const WinRTMidiInPortPtr port, double timeStamp, const unsig
     {
         cout << "timestamp = " << timeStamp << endl;
     }
+    LeaveCriticalSection(&gCriticalSection);
 }
 
 int main()
@@ -110,6 +112,9 @@ int main()
         return -1;
     }
   
+    InitializeCriticalSection(&gCriticalSection);
+
+
     // GetWinRTMidi DLL function pointers. Error checking needs to be added!
 
     //Get pointer to the WinRTMidiInitializeFunc function using GetProcAddress:  
@@ -152,9 +157,9 @@ int main()
     midiInPort = gMidiInPortOpenFunc(midiPtr, 0, midiInCallback);
 
     // open Midi out port 1
-    gMidiOutPort = gMidiOutPortOpenFunc(midiPtr, 1);
+    gMidiOutPort = gMidiOutPortOpenFunc(midiPtr, 2);
 
-    const WinRTMidiPortWatcherPtr watcher = gMidiGetPortWatcher(midiPtr, WinRTMidiPortType::In);
+    const WinRTMidiPortWatcherPtr watcher = gMidiGetPortWatcher(midiPtr, In);
     unsigned int numPorts = gWatcherPortCountFunc(watcher);
     const char* name = gWatcherPortNameFunc(watcher, 0);
 
@@ -168,6 +173,8 @@ int main()
 
     //Free the library:
     FreeLibrary(dllHandle);
+
+    DeleteCriticalSection(&gCriticalSection);
 
     return 0;
 }
