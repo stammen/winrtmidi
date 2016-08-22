@@ -186,7 +186,7 @@ byte* WinRTMidiOutPort::getIBufferDataPtr(IBuffer^ buffer)
 
 void WinRTMidiOutPort::Send(const unsigned char* message, unsigned int nBytes)
 {
-    // check if out preallocated IBuffer is big enough and reallocate if needed
+    // check if preallocated IBuffer is big enough and reallocate if needed
     if (nBytes > mBuffer->Capacity)
     {
         mBuffer = ref new Buffer(nBytes);
