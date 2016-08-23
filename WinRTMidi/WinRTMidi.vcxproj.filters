@@ -30,12 +30,6 @@
     <ClInclude Include="WinRTMidiPortWatcher.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="IWinRTMidiPortWatcher.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="IWinRTMidiPort.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="WinRTMidiImpl.h">
       <Filter>Header Files</Filter>
     </ClInclude>

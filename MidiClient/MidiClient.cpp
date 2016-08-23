@@ -1,4 +1,14 @@
-// MidiClient.cpp 
+// ******************************************************************
+// Copyright (c) Microsoft. All rights reserved.
+// This code is licensed under the MIT License (MIT).
+// THE CODE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+// INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH
+// THE CODE OR THE USE OR OTHER DEALINGS IN THE CODE.
+// ******************************************************************
 
 #include "stdafx.h"
 #include "WinRTMidi.h"
@@ -156,8 +166,8 @@ int main()
     // open Midi In port 0
     midiInPort = gMidiInPortOpenFunc(midiPtr, 0, midiInCallback);
 
-    // open Midi out port 1
-    gMidiOutPort = gMidiOutPortOpenFunc(midiPtr, 2);
+    // open Midi out port 0
+    gMidiOutPort = gMidiOutPortOpenFunc(midiPtr, 0);
 
     const WinRTMidiPortWatcherPtr watcher = gMidiGetPortWatcher(midiPtr, In);
     unsigned int numPorts = gWatcherPortCountFunc(watcher);
