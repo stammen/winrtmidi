@@ -50,7 +50,10 @@ namespace WinRT
 
     ref class WinRTMidiPortWatcher
     {
+    public:
+
     internal:
+        WinRTMidiErrorType Initialize();
         unsigned int GetPortCount();
         Platform::String^ GetPortId(unsigned int portNumber);
 
@@ -79,7 +82,7 @@ namespace WinRT
         void OnDeviceUpdated(Windows::Devices::Enumeration::DeviceWatcher^ sender, Windows::Devices::Enumeration::DeviceInformationUpdate^ args);
         void OnDeviceEnumerationCompleted(Windows::Devices::Enumeration::DeviceWatcher^ sender, Platform::Object^ args);
 
-        void CheckForEnumeration();
+        void WaitForEnumeration();
 
         Windows::Devices::Enumeration::DeviceWatcher^ mPortWatcher;
         std::vector<std::unique_ptr<WinRTMidiPortInfo>> mPortInfo;

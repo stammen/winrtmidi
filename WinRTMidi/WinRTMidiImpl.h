@@ -15,23 +15,43 @@
 #include "WinRTMidi.h"
 #include "WinRTMidiPortWatcher.h"
 #include <memory>
+#include <string>
 
 namespace WinRT
 {
-    public ref class WinRTMidiInPort sealed
+    ref class WinRTMidiPort abstract
     {
     public:
-        WinRTMidiInPort();
+        virtual ~WinRTMidiPort();
+        virtual void OpenPort(Platform::String^ id) = 0;
+        virtual void ClosePort(void) = 0;
+
+    internal:
+        WinRTMidiPort();
+        void SetError(HRESULT error, const std::string&);
+        const std::string& GetErrorMessage();
+        HRESULT GetError();
+
+    private:
+        std::string mErrorMessage;
+        HRESULT mError;
+    };
+
+    ref class WinRTMidiInPort sealed : public WinRTMidiPort
+    {
+    public:
         virtual ~WinRTMidiInPort();
 
-        void OpenPort(Platform::String^ id);
-        void ClosePort(void);
+        virtual void OpenPort(Platform::String^ id) override;
+        virtual void ClosePort(void) override;
 
         void RemoveMidiInCallback() {
             mMessageReceivedCallback = nullptr;
         };
 
     internal:
+        WinRTMidiInPort();
+        
         // needs to be internal as MidiInMessageReceivedCallbackType is not a WinRT type
         void SetMidiInCallback(WinRTMidiInCallback callback) {
             mMessageReceivedCallback = callback;
@@ -45,14 +65,14 @@ namespace WinRT
         WinRTMidiInCallback mMessageReceivedCallback;
     };
 
-    public ref class WinRTMidiOutPort sealed
+    ref class WinRTMidiOutPort sealed : public WinRTMidiPort
     {
     public:
         WinRTMidiOutPort();
         virtual ~WinRTMidiOutPort();
         
-        void OpenPort(Platform::String^ id);
-        void ClosePort(void);
+        virtual void OpenPort(Platform::String^ id) override;
+        virtual void ClosePort(void) override;
 
     internal:
         void Send(const unsigned char* message, unsigned int nBytes);
@@ -69,6 +89,8 @@ namespace WinRT
     {
     public:
         WinRTMidi(MidiPortChangedCallback callback);
+        WinRTMidiErrorType Initialize();
+
         WinRTMidiPortWatcher^ GetPortWatcher(WinRTMidiPortType type);
         WinRTMidiPortWatcherPtr GetPortWatcherWrapper(WinRTMidiPortType type);
         Platform::String^ getPortId(WinRTMidiPortType type, unsigned int index);

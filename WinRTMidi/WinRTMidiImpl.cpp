@@ -35,6 +35,17 @@ WinRTMidi::WinRTMidi(MidiPortChangedCallback callback)
     mMidiOutPortWatcherWrapper = std::make_shared<MidiPortWatcherWrapper>(mMidiOutPortWatcher);
 }
 
+WinRTMidiErrorType WinRTMidi::Initialize()
+{
+    WinRTMidiErrorType result = mMidiInPortWatcher->Initialize();
+    if (result == WINRT_NO_ERROR)
+    {
+        result = mMidiOutPortWatcher->Initialize();
+    }
+
+    return result;
+}
+
 WinRTMidiPortWatcher^ WinRTMidi::GetPortWatcher(WinRTMidiPortType type)
 {
     switch (type)
@@ -76,6 +87,31 @@ Platform::String^ WinRTMidi::getPortId(WinRTMidiPortType type, unsigned int inde
     return nullptr;
 }
 
+WinRTMidiPort::WinRTMidiPort()
+    : mErrorMessage("")
+    , mError(S_OK)
+{
+
+}
+
+WinRTMidiPort::~WinRTMidiPort()
+{
+
+}
+
+void WinRTMidiPort::SetError(HRESULT error, const std::string&)
+{
+
+}
+
+const std::string& WinRTMidiPort::GetErrorMessage()
+{
+    return mErrorMessage;
+}
+HRESULT WinRTMidiPort::GetError()
+{
+    return mError;
+}
 
 WinRTMidiInPort::WinRTMidiInPort()
     : mMessageReceivedCallback(nullptr)
@@ -87,7 +123,6 @@ WinRTMidiInPort::~WinRTMidiInPort()
 
 }
 
-
 //Blocks until port is open
 void WinRTMidiInPort::OpenPort(Platform::String^ id)
 {
@@ -95,12 +130,10 @@ void WinRTMidiInPort::OpenPort(Platform::String^ id)
     mFirstMessage = true;
     auto task = create_task(MidiInPort::FromIdAsync(id));
 
-    // wait for port to be created
-    task.wait();
-
     // get results
     try
     {
+        // block until port is created
         mMidiInPort = task.get();
         mMidiInPort->MessageReceived += ref new Windows::Foundation::TypedEventHandler<MidiInPort ^, MidiMessageReceivedEventArgs ^>(this, &WinRTMidiInPort::OnMidiInMessageReceived);
     }
@@ -163,18 +196,14 @@ void WinRTMidiOutPort::OpenPort(Platform::String^ id)
 {
     auto task = create_task(MidiOutPort::FromIdAsync(id));
 
-    // wait for port to be created
-    task.wait();
-
-    // get results
     try
     {
+        // blocks until port is created
         mMidiOutPort = task.get();
     }
     catch (Platform::Exception^ ex)
     {
         throw(ex);
-
     }
 }
 

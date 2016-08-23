@@ -25,6 +25,22 @@ namespace WinRT
     enum WinRTMidiPortType { In, Out };
     enum WinRTMidiPortUpdateType { PortAdded, PortRemoved, EnumerationComplete };
 
+    enum WinRTMidiErrorType {
+        WINRT_NO_ERROR = 0,                         //no error
+        WINRT_WINDOWS_RUNTIME_ERROR,                // unable to initialize Windows Runtime
+        WINRT_WINDOWS_VERSION_ERROR,                // version of Windows does not support Windows::Devices::Midi api
+        WINRT_PORTWATCHER_INITIALIZATION_ERROR,
+        WINRT_ERROR_UNSPECIFIED,
+        WINRT_ERROR_NO_DEVICES_FOUND,
+        WINRT_ERROR_INVALID_DEVICE, 
+        WINRT_ERROR_MEMORY_ERROR, 
+        WINRT_ERROR_INVALID_PARAMETER, 
+        WINRT_ERROR_INVALID_USE,
+        WINRT_ERROR_DRIVER_ERROR, 
+        WINRT_ERROR_SYSTEM_ERROR, 
+        WINRT_ERROR_THREAD_ERROR
+    };
+
     typedef void* WinRTMidiPtr;
     typedef void* WinRTMidiPortWatcherPtr;
     typedef void* WinRTMidiInPortPtr;
@@ -37,8 +53,8 @@ namespace WinRT
     typedef void(*WinRTMidiInCallback) (const WinRTMidiInPortPtr port, double timeStamp, const unsigned char* message, unsigned int nBytes);
 
     // WinRT Midi Functions
-    typedef WinRTMidiPtr(__cdecl *WinRTMidiInitializeFunc)(MidiPortChangedCallback callback);
-    WINRTMIDI_API WinRTMidiPtr __cdecl winrt_initialize_midi(MidiPortChangedCallback callback);
+    typedef WinRTMidiErrorType(__cdecl *WinRTMidiInitializeFunc)(MidiPortChangedCallback callback, WinRTMidiPtr* midi);
+    WINRTMIDI_API WinRTMidiErrorType __cdecl winrt_initialize_midi(MidiPortChangedCallback callback, WinRTMidiPtr* midiResult);
  
     typedef void(__cdecl *WinRTMidiFreeFunc)(WinRTMidiPtr midi);
     WINRTMIDI_API void __cdecl winrt_free_midi(WinRTMidiPtr midi);

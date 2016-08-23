@@ -161,7 +161,12 @@ int main()
     gWatcherPortTypeFunc = reinterpret_cast<WinRTWatcherPortTypeFunc>(::GetProcAddress(dllHandle, "winrt_watcher_get_port_type"));
 
     // initialize Midi interface
-    midiPtr = gMidiInitFunc(midiPortChangedCallback);
+    WinRTMidiErrorType result = gMidiInitFunc(midiPortChangedCallback, &midiPtr);
+    if(result != WINRT_NO_ERROR)
+    {
+        cout << "Unable to initialize WinRTMidi" << endl;
+        return -1;
+    }
 
     // open Midi In port 0
     midiInPort = gMidiInPortOpenFunc(midiPtr, 0, midiInCallback);

@@ -17,11 +17,38 @@
 
 namespace WinRT
 {
-    WinRTMidiPtr winrt_initialize_midi(MidiPortChangedCallback callback)
+    WinRTMidiErrorType winrt_initialize_midi(MidiPortChangedCallback callback, WinRTMidiPtr* midiResult)
     {
+        *midiResult = nullptr;
+
         // Initialize the Windows Runtime.
         static Microsoft::WRL::Wrappers::RoInitializeWrapper initialize(RO_INIT_MULTITHREADED);
-        return (WinRTMidiPtr) new WinRTMidi(callback);
+
+        if (!SUCCEEDED(initialize.operator HRESULT()))
+        {
+            return WINRT_WINDOWS_RUNTIME_ERROR;
+        }
+
+        // Check if Windows 10 midi api is supported
+        if (!Windows::Foundation::Metadata::ApiInformation::IsTypePresent("Windows.Devices.Midi.MidiInPort"))
+        {
+            return WINRT_WINDOWS_VERSION_ERROR;
+        }
+
+        // attempt to initialize the Midi Portwatchers
+        WinRTMidi* midi = new WinRTMidi(callback);
+        WinRTMidiErrorType result = midi->Initialize();
+        if(result != WINRT_NO_ERROR)
+        {
+            delete midi;
+            *midiResult = nullptr;
+        }
+        else
+        {
+            *midiResult = (WinRTMidiPtr)midi;
+        }
+
+        return result;
     }
 
     void winrt_free_midi(WinRTMidiPtr midi)

@@ -15,12 +15,15 @@
 #include <collection.h>
 #include <cvt/wstring>
 #include <codecvt>
+#include <ppltasks.h>
+
 
 using namespace Windows::Devices::Midi;
 using namespace Windows::Devices::Enumeration;
 using namespace Windows::Foundation;
 using namespace Windows::Foundation::Collections;
 using namespace Platform;
+using namespace concurrency;
 
 namespace WinRT
 {
@@ -43,29 +46,55 @@ namespace WinRT
         , mPortChangedCallback(callback)
         , mPortType(type)
     {
-        switch (type)
+ 
+    }
+
+    WinRTMidiErrorType WinRTMidiPortWatcher::Initialize()
+    {
+        auto task = create_task(create_async([this]
         {
-        case WinRTMidiPortType::In:
-            mPortWatcher = DeviceInformation::CreateWatcher(MidiInPort::GetDeviceSelector());
-            break;
-        case WinRTMidiPortType::Out:
-            mPortWatcher = DeviceInformation::CreateWatcher(MidiOutPort::GetDeviceSelector());
-            break;
+            switch (mPortType)
+            {
+            case WinRTMidiPortType::In:
+                mPortWatcher = DeviceInformation::CreateWatcher(MidiInPort::GetDeviceSelector());
+                break;
+            case WinRTMidiPortType::Out:
+                mPortWatcher = DeviceInformation::CreateWatcher(MidiOutPort::GetDeviceSelector());
+                break;
+            }
+
+            // wire up event handlers
+            mPortWatcher->Added += ref new TypedEventHandler<DeviceWatcher ^, DeviceInformation ^>(this, &WinRTMidiPortWatcher::OnDeviceAdded);
+            mPortWatcher->Removed += ref new TypedEventHandler<DeviceWatcher ^, DeviceInformationUpdate ^>(this, &WinRTMidiPortWatcher::OnDeviceRemoved);
+            mPortWatcher->Updated += ref new TypedEventHandler<DeviceWatcher ^, DeviceInformationUpdate ^>(this, &WinRTMidiPortWatcher::OnDeviceUpdated);
+            mPortWatcher->EnumerationCompleted += ref new Windows::Foundation::TypedEventHandler<DeviceWatcher ^, Platform::Object ^>(this, &WinRTMidiPortWatcher::OnDeviceEnumerationCompleted);
+
+            // start enumeration
+            mPortEnumerationComplete = false;
+            mPortWatcher->Start();
+
+            // wait until port enumeration is complete
+            WaitForEnumeration();
+
+            // report enumerated ports
+            OnMidiPortUpdated(WinRTMidiPortUpdateType::EnumerationComplete);
+
+        }));
+
+        try
+        {
+            // wait for MIDI port enumeration to complete
+            task.get(); // will throw any exceptions from above task
+            return WINRT_NO_ERROR;
         }
-
-        // wire up event handlers
-        mPortWatcher->Added += ref new TypedEventHandler<DeviceWatcher ^, DeviceInformation ^>(this, &WinRTMidiPortWatcher::OnDeviceAdded);
-        mPortWatcher->Removed += ref new TypedEventHandler<DeviceWatcher ^, DeviceInformationUpdate ^>(this, &WinRTMidiPortWatcher::OnDeviceRemoved);
-        mPortWatcher->Updated += ref new TypedEventHandler<DeviceWatcher ^, DeviceInformationUpdate ^>(this, &WinRTMidiPortWatcher::OnDeviceUpdated);
-        mPortWatcher->EnumerationCompleted += ref new Windows::Foundation::TypedEventHandler<DeviceWatcher ^, Platform::Object ^>(this, &WinRTMidiPortWatcher::OnDeviceEnumerationCompleted);
-
-        // start enumeration
-        mPortEnumerationComplete = false;
-        mPortWatcher->Start();
+        catch (Platform::Exception^ ex)
+        {
+            return WINRT_PORTWATCHER_INITIALIZATION_ERROR;
+        }
     }
 
     // blocks if port enumeration is not complete
-    void WinRTMidiPortWatcher::CheckForEnumeration()
+    void WinRTMidiPortWatcher::WaitForEnumeration()
     {
         while (!mPortEnumerationComplete)
         {
@@ -76,13 +105,11 @@ namespace WinRT
 
     const std::string& WinRTMidiPortWatcher::GetPortName(unsigned int portNumber)
     {
-        CheckForEnumeration();
         return mPortInfo[portNumber].get()->mName;
     }
 
     Platform::String^ WinRTMidiPortWatcher::GetPortId(unsigned int portNumber)
     {
-        CheckForEnumeration();
         if (portNumber >= mPortInfo.size())
         {
             return "";
@@ -95,7 +122,6 @@ namespace WinRT
 
     unsigned int WinRTMidiPortWatcher::GetPortCount()
     {
-        CheckForEnumeration();
         return static_cast<int>(mPortInfo.size());
     }
 
@@ -136,7 +162,6 @@ namespace WinRT
         std::unique_lock<std::mutex> locker(mEnumerationMutex);
         mPortEnumerationComplete = true;
         mSleepCondition.notify_one();
-        OnMidiPortUpdated(WinRTMidiPortUpdateType::EnumerationComplete);
     }
 
     void WinRTMidiPortWatcher::OnMidiPortUpdated(WinRTMidiPortUpdateType update)
