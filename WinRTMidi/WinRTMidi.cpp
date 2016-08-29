@@ -74,7 +74,7 @@ namespace WinRT
 
         if (midiPtr == nullptr)
         {
-            return WINRT_INVALID_PARAMETER_EROR;
+            return WINRT_INVALID_PARAMETER_ERROR;
         }
 
         auto id = midiPtr->getPortId(WinRTMidiPortType::In, index);
@@ -111,7 +111,7 @@ namespace WinRT
 
         if (midiPtr == nullptr)
         {
-            return WINRT_INVALID_PARAMETER_EROR;
+            return WINRT_INVALID_PARAMETER_ERROR;
         }
 
         auto id = midiPtr->getPortId(WinRTMidiPortType::Out, index);
