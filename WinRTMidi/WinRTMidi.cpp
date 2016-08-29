@@ -114,7 +114,7 @@ namespace WinRT
             return WINRT_INVALID_PARAMETER_EROR;
         }
 
-        auto id = midiPtr->getPortId(WinRTMidiPortType::In, index);
+        auto id = midiPtr->getPortId(WinRTMidiPortType::Out, index);
         if (id == nullptr)
         {
             return WINRT_INVALID_PORT_INDEX_ERROR;
@@ -124,7 +124,7 @@ namespace WinRT
         result = port->OpenPort(id);
         if (result == WINRT_NO_ERROR)
         {
-            *midiPort = (WinRTMidiInPortPtr) new MidiOutPortWrapper(port);
+            *midiPort = (WinRTMidiOutPortPtr) new MidiOutPortWrapper(port);
         }
         return result;
     }
