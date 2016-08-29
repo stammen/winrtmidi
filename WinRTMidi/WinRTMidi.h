@@ -29,17 +29,12 @@ namespace WinRT
         WINRT_NO_ERROR = 0,                         //no error
         WINRT_WINDOWS_RUNTIME_ERROR,                // unable to initialize Windows Runtime
         WINRT_WINDOWS_VERSION_ERROR,                // version of Windows does not support Windows::Devices::Midi api
-        WINRT_PORTWATCHER_INITIALIZATION_ERROR,
-        WINRT_INVALID_PORT_INDEX_ERROR,
-        WINRT_OPEN_PORT_ERROR,
-        WINRT_ERROR_UNSPECIFIED,
-        WINRT_ERROR_NO_DEVICES_FOUND,
-        WINRT_ERROR_MEMORY_ERROR, 
-        WINRT_INVALID_PARAMETER_ERROR, 
-        WINRT_ERROR_INVALID_USE,
-        WINRT_ERROR_DRIVER_ERROR, 
-        WINRT_ERROR_SYSTEM_ERROR, 
-        WINRT_ERROR_THREAD_ERROR
+        WINRT_PORTWATCHER_INITIALIZATION_ERROR,     // error initialize midi port watcher
+        WINRT_INVALID_PORT_INDEX_ERROR,             // requested port index is out of range
+        WINRT_OPEN_PORT_ERROR,                      // open midi port error
+        WINRT_INVALID_PARAMETER_ERROR,
+        WINRT_MEMORY_ERROR, 
+        WINRT_UNSPECIFIED_ERROR
     };
 
     typedef void* WinRTMidiPtr;
