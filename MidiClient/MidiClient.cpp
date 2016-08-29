@@ -124,9 +124,7 @@ int main()
   
     InitializeCriticalSection(&gCriticalSection);
 
-
     // GetWinRTMidi DLL function pointers. Error checking needs to be added!
-
     //Get pointer to the WinRTMidiInitializeFunc function using GetProcAddress:  
     gMidiInitFunc = reinterpret_cast<WinRTMidiInitializeFunc>(::GetProcAddress(dllHandle, "winrt_initialize_midi"));
 
@@ -168,7 +166,7 @@ int main()
         goto cleanup;
     }
 
-    // open Midi In port 0
+    // open midi in port 0
     result = gMidiInPortOpenFunc(midiPtr, 0, midiInCallback, &midiInPort);
     if (result != WINRT_NO_ERROR)
     {
@@ -176,7 +174,7 @@ int main()
         goto cleanup;
     }
 
-    // open Midi out port 0
+    // open midi out port 0
     result = gMidiOutPortOpenFunc(midiPtr, 0, &gMidiOutPort);
     if (result != WINRT_NO_ERROR)
     {
@@ -184,21 +182,32 @@ int main()
         goto cleanup;
     }
 
+    // example on how get midi port info
     const WinRTMidiPortWatcherPtr watcher = gMidiGetPortWatcher(midiPtr, In);
-    unsigned int numPorts = gWatcherPortCountFunc(watcher);
-    const char* name = gWatcherPortNameFunc(watcher, 0);
+    if (watcher != nullptr)
+    {
+        unsigned int numPorts = gWatcherPortCountFunc(watcher);
+        if (numPorts > 0)
+        {
+            const char* name = gWatcherPortNameFunc(watcher, 0);
+        }
+    }
 
     // process midi until user presses key on keyboard
     char c = getchar();
 
 cleanup:
     // clean up midi objects
+    // okay to call with nullptrs
     gMidiOutPortFreeFunc(gMidiOutPort);
     gMidiInPortFreeFunc(midiInPort);
     gMidiFreeFunc(midiPtr);
 
     //Free the library:
-    FreeLibrary(dllHandle);
+    if (dllHandle)
+    {
+        FreeLibrary(dllHandle);
+    }
 
     DeleteCriticalSection(&gCriticalSection);
 
