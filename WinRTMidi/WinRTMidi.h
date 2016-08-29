@@ -30,11 +30,12 @@ namespace WinRT
         WINRT_WINDOWS_RUNTIME_ERROR,                // unable to initialize Windows Runtime
         WINRT_WINDOWS_VERSION_ERROR,                // version of Windows does not support Windows::Devices::Midi api
         WINRT_PORTWATCHER_INITIALIZATION_ERROR,
+        WINRT_INVALID_PORT_INDEX_ERROR,
+        WINRT_OPEN_PORT_ERROR,
         WINRT_ERROR_UNSPECIFIED,
         WINRT_ERROR_NO_DEVICES_FOUND,
-        WINRT_ERROR_INVALID_DEVICE, 
         WINRT_ERROR_MEMORY_ERROR, 
-        WINRT_ERROR_INVALID_PARAMETER, 
+        WINRT_INVALID_PARAMETER_EROR, 
         WINRT_ERROR_INVALID_USE,
         WINRT_ERROR_DRIVER_ERROR, 
         WINRT_ERROR_SYSTEM_ERROR, 
@@ -54,7 +55,7 @@ namespace WinRT
 
     // WinRT Midi Functions
     typedef WinRTMidiErrorType(__cdecl *WinRTMidiInitializeFunc)(MidiPortChangedCallback callback, WinRTMidiPtr* midi);
-    WINRTMIDI_API WinRTMidiErrorType __cdecl winrt_initialize_midi(MidiPortChangedCallback callback, WinRTMidiPtr* midiResult);
+    WINRTMIDI_API WinRTMidiErrorType __cdecl winrt_initialize_midi(MidiPortChangedCallback callback, WinRTMidiPtr* winrtMidi);
  
     typedef void(__cdecl *WinRTMidiFreeFunc)(WinRTMidiPtr midi);
     WINRTMIDI_API void __cdecl winrt_free_midi(WinRTMidiPtr midi);
@@ -63,15 +64,15 @@ namespace WinRT
     WINRTMIDI_API const WinRTMidiPortWatcherPtr __cdecl winrt_get_portwatcher(WinRTMidiPtr midi, WinRTMidiPortType type);
 
     // WinRT Midi In Port Functions
-    typedef WinRTMidiInPortPtr(__cdecl *WinRTMidiInPortOpenFunc)(WinRTMidiPtr midi, unsigned int index, WinRTMidiInCallback callback);
-    WINRTMIDI_API WinRTMidiInPortPtr __cdecl winrt_open_midi_in_port(WinRTMidiPtr midi, unsigned int index, WinRTMidiInCallback callback);
+    typedef WinRTMidiErrorType(__cdecl *WinRTMidiInPortOpenFunc)(WinRTMidiPtr midi, unsigned int index, WinRTMidiInCallback callback, WinRTMidiInPortPtr* midiPort);
+    WINRTMIDI_API WinRTMidiErrorType __cdecl winrt_open_midi_in_port(WinRTMidiPtr midi, unsigned int index, WinRTMidiInCallback callback, WinRTMidiInPortPtr* midiPort);
 
     typedef void(__cdecl *WinRTMidiInPortFreeFunc)(WinRTMidiInPortPtr port);
     WINRTMIDI_API void __cdecl winrt_free_midi_in_port(WinRTMidiInPortPtr port);
 
     // WinRT Midi Out Port Functions
-    typedef WinRTMidiOutPortPtr(__cdecl *WinRTMidiOutPortOpenFunc)(WinRTMidiPtr midi, unsigned int index);
-    WINRTMIDI_API WinRTMidiOutPortPtr __cdecl winrt_open_midi_out_port(WinRTMidiPtr midi, unsigned int index);
+    typedef WinRTMidiErrorType(__cdecl *WinRTMidiOutPortOpenFunc)(WinRTMidiPtr midi, unsigned int index, WinRTMidiOutPortPtr* midiPort);
+    WINRTMIDI_API WinRTMidiErrorType __cdecl winrt_open_midi_out_port(WinRTMidiPtr midi, unsigned int index, WinRTMidiOutPortPtr* midiPort);
 
     typedef void(__cdecl *WinRTMidiOutPortFreeFunc)(WinRTMidiOutPortPtr port);
     WINRTMIDI_API void __cdecl winrt_free_midi_out_port(WinRTMidiOutPortPtr port);

@@ -165,14 +165,24 @@ int main()
     if(result != WINRT_NO_ERROR)
     {
         cout << "Unable to initialize WinRTMidi" << endl;
-        return -1;
+        goto cleanup;
     }
 
     // open Midi In port 0
-    midiInPort = gMidiInPortOpenFunc(midiPtr, 0, midiInCallback);
+    result = gMidiInPortOpenFunc(midiPtr, 0, midiInCallback, &midiInPort);
+    if (result != WINRT_NO_ERROR)
+    {
+        cout << "Unable to create Midi In port" << endl;
+        goto cleanup;
+    }
 
     // open Midi out port 0
-    gMidiOutPort = gMidiOutPortOpenFunc(midiPtr, 0);
+    result = gMidiOutPortOpenFunc(midiPtr, 0, &gMidiOutPort);
+    if (result != WINRT_NO_ERROR)
+    {
+        cout << "Unable to create Midi Out port" << endl;
+        goto cleanup;
+    }
 
     const WinRTMidiPortWatcherPtr watcher = gMidiGetPortWatcher(midiPtr, In);
     unsigned int numPorts = gWatcherPortCountFunc(watcher);
@@ -181,6 +191,7 @@ int main()
     // process midi until user presses key on keyboard
     char c = getchar();
 
+cleanup:
     // clean up midi objects
     gMidiOutPortFreeFunc(gMidiOutPort);
     gMidiInPortFreeFunc(midiInPort);

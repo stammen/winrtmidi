@@ -23,18 +23,19 @@ namespace WinRT
     {
     public:
         virtual ~WinRTMidiPort();
-        virtual void OpenPort(Platform::String^ id) = 0;
         virtual void ClosePort(void) = 0;
 
     internal:
         WinRTMidiPort();
-        void SetError(HRESULT error, const std::string&);
+        virtual WinRTMidiErrorType OpenPort(Platform::String^ id) = 0;
+
+        void SetError(WinRTMidiErrorType error, const std::string& message);
         const std::string& GetErrorMessage();
-        HRESULT GetError();
+        WinRTMidiErrorType GetError();
 
     private:
         std::string mErrorMessage;
-        HRESULT mError;
+        WinRTMidiErrorType mError;
     };
 
     ref class WinRTMidiInPort sealed : public WinRTMidiPort
@@ -42,7 +43,6 @@ namespace WinRT
     public:
         virtual ~WinRTMidiInPort();
 
-        virtual void OpenPort(Platform::String^ id) override;
         virtual void ClosePort(void) override;
 
         void RemoveMidiInCallback() {
@@ -51,7 +51,8 @@ namespace WinRT
 
     internal:
         WinRTMidiInPort();
-        
+        virtual WinRTMidiErrorType OpenPort(Platform::String^ id) override;
+
         // needs to be internal as MidiInMessageReceivedCallbackType is not a WinRT type
         void SetMidiInCallback(WinRTMidiInCallback callback) {
             mMessageReceivedCallback = callback;
@@ -68,13 +69,13 @@ namespace WinRT
     ref class WinRTMidiOutPort sealed : public WinRTMidiPort
     {
     public:
-        WinRTMidiOutPort();
         virtual ~WinRTMidiOutPort();
         
-        virtual void OpenPort(Platform::String^ id) override;
         virtual void ClosePort(void) override;
 
     internal:
+        WinRTMidiOutPort();
+        virtual WinRTMidiErrorType OpenPort(Platform::String^ id) override;
         void Send(const unsigned char* message, unsigned int nBytes);
 
     private:

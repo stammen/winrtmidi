@@ -89,7 +89,7 @@ Platform::String^ WinRTMidi::getPortId(WinRTMidiPortType type, unsigned int inde
 
 WinRTMidiPort::WinRTMidiPort()
     : mErrorMessage("")
-    , mError(S_OK)
+    , mError(WINRT_NO_ERROR)
 {
 
 }
@@ -99,16 +99,18 @@ WinRTMidiPort::~WinRTMidiPort()
 
 }
 
-void WinRTMidiPort::SetError(HRESULT error, const std::string&)
+void WinRTMidiPort::SetError(WinRTMidiErrorType error, const std::string& message)
 {
-
+    mError = error;
+    mErrorMessage = message;
 }
 
 const std::string& WinRTMidiPort::GetErrorMessage()
 {
     return mErrorMessage;
 }
-HRESULT WinRTMidiPort::GetError()
+
+WinRTMidiErrorType WinRTMidiPort::GetError()
 {
     return mError;
 }
@@ -124,8 +126,9 @@ WinRTMidiInPort::~WinRTMidiInPort()
 }
 
 //Blocks until port is open
-void WinRTMidiInPort::OpenPort(Platform::String^ id)
+WinRTMidiErrorType WinRTMidiInPort::OpenPort(Platform::String^ id)
 {
+    WinRTMidiErrorType result = WINRT_NO_ERROR;
     mLastMessageTime = 0;
     mFirstMessage = true;
     auto task = create_task(MidiInPort::FromIdAsync(id));
@@ -139,8 +142,10 @@ void WinRTMidiInPort::OpenPort(Platform::String^ id)
     }
     catch (Platform::Exception^ ex)
     {
-
+        result = WINRT_OPEN_PORT_ERROR;
     }
+
+    return result;
 }
 
 void WinRTMidiInPort::ClosePort(void) 
@@ -192,8 +197,9 @@ WinRTMidiOutPort::~WinRTMidiOutPort()
 }
 
 //Blocks until port is open
-void WinRTMidiOutPort::OpenPort(Platform::String^ id)
+WinRTMidiErrorType WinRTMidiOutPort::OpenPort(Platform::String^ id)
 {
+    WinRTMidiErrorType result = WINRT_NO_ERROR;
     auto task = create_task(MidiOutPort::FromIdAsync(id));
 
     try
@@ -203,8 +209,10 @@ void WinRTMidiOutPort::OpenPort(Platform::String^ id)
     }
     catch (Platform::Exception^ ex)
     {
-        throw(ex);
+        result = WINRT_OPEN_PORT_ERROR;
     }
+
+    return result;
 }
 
 void WinRTMidiOutPort::ClosePort(void)
