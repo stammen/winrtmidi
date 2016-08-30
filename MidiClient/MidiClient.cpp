@@ -14,12 +14,16 @@
 #include "WinRTMidi.h"
 #include <iostream>
 #include <string>
+#include <vector>
+#include <conio.h>
+
+// needed to use GetFileVersionInfo functions 
+#pragma comment(lib, "version.lib")
 
 using namespace std;
 using namespace WinRT;
 
 CRITICAL_SECTION gCriticalSection;
-
 
 // WinRTMidi DLL function pointers
 WinRTWatcherPortCountFunc   gWatcherPortCountFunc = nullptr;
@@ -36,6 +40,47 @@ WinRTMidiOutPortSendFunc    gMidiOutPortSendFunc = nullptr;
 
 // Midi Out port
 WinRTMidiOutPortPtr gMidiOutPort = nullptr;
+
+/*
+    Windows 8.1 and higher make it difficult to access Windows OS version.
+    This function checks OS version by getting version of kernel32.dll.
+*/
+bool windows10orGreater()
+{
+    static const wchar_t kernel32[] = L"\\kernel32.dll";
+    wchar_t path[MAX_PATH];
+
+    unsigned int n = GetSystemDirectory(path, MAX_PATH);
+    memcpy_s(path + n, MAX_PATH, kernel32, sizeof(kernel32));
+
+    unsigned int size = GetFileVersionInfoSize(path, NULL);
+    if (size == 0)
+    {
+        return false;
+    }
+
+    std::vector<char> verionInfo;
+    verionInfo.resize(size);
+    BOOL result = GetFileVersionInfo(path, 0, size, verionInfo.data());
+    if (!result || GetLastError() != S_OK)
+    {
+        return false;
+    }
+
+    VS_FIXEDFILEINFO *vinfo;
+    result = VerQueryValue(verionInfo.data(), L"\\", (LPVOID *)&vinfo, &size);
+    if (!result || size < sizeof(VS_FIXEDFILEINFO))
+    {
+        return false;
+    }
+
+    cout << "Windows version: "
+        << (int)HIWORD(vinfo->dwProductVersionMS) << "."
+        << (int)LOWORD(vinfo->dwProductVersionMS) << "."
+        << (int)HIWORD(vinfo->dwProductVersionLS) << endl << endl;
+
+    return HIWORD(vinfo->dwProductVersionMS) >= 10;
+}
 
 void printPortNames(const WinRTMidiPortWatcherPtr watcher)
 {
@@ -115,11 +160,17 @@ int main()
     WinRTMidiInPortPtr midiInPort = nullptr;
 
     //Load the WinRTMidi dll
-    dllHandle = LoadLibrary(L"WinRTMidi.dll");
+
+    //Load the WinRTMidi dll
+    if (windows10orGreater())
+    {
+        dllHandle = LoadLibrary(L"WinRTMidi.dll");
+    }
+
     if (NULL == dllHandle)
     {
         cout << "Unable to load WinRTMidi.dll" << endl;
-        return -1;
+        goto cleanup;
     }
   
     InitializeCriticalSection(&gCriticalSection);
@@ -193,15 +244,29 @@ int main()
         }
     }
 
-    // process midi until user presses key on keyboard
-    char c = getchar();
-
 cleanup:
+
+    // process midi until user presses key on keyboard
+    cout << "Press any key to exit..." << endl;
+    char c = _getch();
+
+
     // clean up midi objects
     // okay to call with nullptrs
-    gMidiOutPortFreeFunc(gMidiOutPort);
-    gMidiInPortFreeFunc(midiInPort);
-    gMidiFreeFunc(midiPtr);
+    if(gMidiOutPortFreeFunc)
+    {
+        gMidiOutPortFreeFunc(gMidiOutPort);
+    }
+
+    if(gMidiInPortFreeFunc)
+    {
+        gMidiInPortFreeFunc(midiInPort);
+    }
+
+    if(gMidiFreeFunc)
+    {
+        gMidiFreeFunc(midiPtr);
+    }
 
     //Free the library:
     if (dllHandle)
