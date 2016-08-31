@@ -12,7 +12,7 @@ Windows 10 UWP app, you can use the WinRTMidi DLL to access the Windows::Devices
 The recommended steps to use this DLL are as follows:
 
 1. Add the WinRTMidi DLL to your Win32 application but do not link to the DLL.
-1. When your Win32 application runs, check if your application is running on Windows 10 (See Testing for Windows 10 below).
+1. When your Win32 application runs, check if your application is running on Windows 10 (See [Testing for Windows 10](#testing-for-windows-10) below).
 1. If your application is running on Windows 10, dynamically load the WinRTMidi DLL using **LoadLibrary()**.
 	* If your application is not running on Windows 10, continue to use the WinMM MIDI API.
 1. Get pointers to the various WinRTMIDI functions using **GetProcAddress()**.
@@ -39,9 +39,9 @@ Visual Studio 2015 (Update 3 recommended) with **Universal Windows App Developme
 
 ### Adding the WinRTMidi DLL to your Win32 Project ###
 
-### Testing for Windows 10 <a id="testing-for-windows-10"/>###
+#Testing for Windows 10 <a id="testing-for-windows-10"/>#
 
-Starting with Windows 8.1, the following Win32 version checking functions will return return version 6.2.0.0 for Windows 8.1 and above:
+Starting with Windows 8.1, the following Win32 version checking functions will return version 6.2.0.0 for Windows 8.1 and above:
  
 * [GetVersion()](https://msdn.microsoft.com/en-us/library/windows/desktop/ms724439(v=vs.85).aspx)
 * [GetVersionEx()](https://msdn.microsoft.com/en-us/library/windows/desktop/ms724451(v=vs.85).aspx)
@@ -49,12 +49,66 @@ Starting with Windows 8.1, the following Win32 version checking functions will r
 
 GetVersion() and GetVersionEx() have also been deprecated in Windows 10. In order to correctly obtain the Windows OS version your application is running on, you can do one of the following strategies:
 
-1. Add a manifest to your application and use VerifyVersionInfo() to test for Windows 10.
-1. Get the version of kernel32.dll. This method does not require adding an app manifest to ensure correct Windows 8.1/10 version numbers.
+1. [Add an application manifest](#application-manifest) to your application and use VerifyVersionInfo() to test for Windows 10.
+1. [Get the version of kernel32.dll](#kernel32-method). This method does not require adding an application manifest to ensure correct Windows 8.1/10 version numbers.
 
-If you do not check for Windows 10 and attempt to load the WinRT DLL, your application will quit with the following error:
+If you do not check for Windows 10 and attempt to load the WinRTMidi DLL on Windows 7 or 8, your application will quit with the following error:
 
 ![WinRT DLL Load Error](Images/dllloaderror.png "WinRT DLL Load Error")
+
+## Testing for Windows 10 Using an Application Manifest <a id="application-manifest"/> ##
+
+1. Create a file called app.manifest.
+1. Add the following XML to the app.manifest file:
+
+	``` xml
+		<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+		<assembly manifestVersion="1.0" xmlns="urn:schemas-microsoft-com:asm.v1" xmlns:asmv3="urn:schemas-microsoft-com:asm.v3">
+			<compatibility xmlns="urn:schemas-microsoft-com:compatibility.v1"> 
+				<application> 
+					<!-- Windows 10 --> 
+					<supportedOS Id="{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"/>
+					<!-- Windows 8.1 -->
+					<supportedOS Id="{1f676c76-80e1-4239-95bb-83d0f6d0da78}"/>
+					<!-- Windows Vista -->
+					<supportedOS Id="{e2011457-1546-43c5-a5fe-008deee3d3f0}"/> 
+					<!-- Windows 7 -->
+					<supportedOS Id="{35138b9a-5d96-4fbd-8e2d-a2440225f93a}"/>
+					<!-- Windows 8 -->
+					<supportedOS Id="{4a2f28e3-53b9-4441-ba9c-d69d4a4a6e38}"/>
+				</application> 
+			</compatibility>
+		</assembly>
+	```
+1. Right click on your application project and select **Properties**.
+
+	![Properties](Images/properties.png "properties")
+
+1. Select the **Linker | Manifest Tool | Input and Output** option and enter the path to the app.manifest file.
+
+	![Application Manifest Path](Images/manifest.png "Application Manifest Path")
+	
+1. Use the following function to test for Windows 10 in your application
+
+	``` c++
+		bool windows10orGreaterWithManifest()
+		{
+			OSVERSIONINFOEX  osvi;
+			DWORDLONG dwlConditionMask = 0;
+			int op = VER_GREATER_EQUAL;
+
+			ZeroMemory(&osvi, sizeof(OSVERSIONINFOEX));
+			osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
+			osvi.dwMajorVersion = 10;
+			VER_SET_CONDITION(dwlConditionMask, VER_MAJORVERSION, op);
+
+			BOOL result = VerifyVersionInfo(&osvi, VER_MAJORVERSION ,dwlConditionMask);
+			return result ? true : false;
+		}
+	```
+
+## Testing for Windows 10 Using kernal32.dll <a id="kernel32-method"/>##
+
 
 
 
