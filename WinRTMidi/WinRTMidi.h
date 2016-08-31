@@ -12,8 +12,6 @@
 
 #pragma once
 
-#include <Windows.h>
-
 #if defined(WINRTMIDI_EXPORT)
 #define WINRTMIDI_API extern "C" __declspec(dllexport)
 #else
@@ -84,5 +82,5 @@ namespace WinRT
 
     typedef WinRTMidiPortType(__cdecl *WinRTWatcherPortTypeFunc)(WinRTMidiPortWatcherPtr watcher);
     WINRTMIDI_API WinRTMidiPortType __cdecl winrt_watcher_get_port_type(WinRTMidiPortWatcherPtr watcher);
-}
+};
  

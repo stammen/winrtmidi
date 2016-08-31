@@ -12,13 +12,13 @@
 
 #include "stdafx.h"
 #include "WinRTMidi.h"
+#include "WindowsVersionHelper.h"
 #include <iostream>
 #include <string>
-#include <vector>
 #include <conio.h>
 
-// needed to use GetFileVersionInfo functions 
-#pragma comment(lib, "version.lib")
+#define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
 
 using namespace std;
 using namespace WinRT;
@@ -40,73 +40,6 @@ WinRTMidiOutPortSendFunc    gMidiOutPortSendFunc = nullptr;
 
 // Midi Out port
 WinRTMidiOutPortPtr gMidiOutPort = nullptr;
-
-/*
-    Windows 8.1 and higher make it difficult to detect Windows OS version.
-    Without an App Manifest indicating Windows 10 support, the Win32
-    Version functions will return 6.2.0.0 for Windows 8.1 and above.
-    This method requires adding an app manifest to ensure correct
-    Windows 10 version numbers.
-*/
-bool windows10orGreaterWithManifest()
-{
-    OSVERSIONINFOEX  osvi;
-    DWORDLONG dwlConditionMask = 0;
-    int op = VER_GREATER_EQUAL;
-
-    ZeroMemory(&osvi, sizeof(OSVERSIONINFOEX));
-    osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
-    osvi.dwMajorVersion = 10;
-    VER_SET_CONDITION(dwlConditionMask, VER_MAJORVERSION, op);
-
-    BOOL result = VerifyVersionInfo(&osvi, VER_MAJORVERSION ,dwlConditionMask);
-    return result ? true : false;
-}
-
-/*
-    Windows 8.1 and higher make it difficult to access Windows OS version.
-    Without an App Manifest indicating Windows 10 support, the Win32
-    Version functions will return 6.2.0.0 for Windows 8.1 and above.
-    This function checks OS version by getting version of kernel32.dll.
-    This method does not require adding an app manifest to ensure correct 
-    Windows 10 version numbers.
-*/
-bool windows10orGreater()
-{
-    static const wchar_t kernel32[] = L"\\kernel32.dll";
-    wchar_t path[MAX_PATH];
-
-    unsigned int n = GetSystemDirectory(path, MAX_PATH);
-    memcpy_s(path + n, MAX_PATH, kernel32, sizeof(kernel32));
-
-    unsigned int size = GetFileVersionInfoSize(path, NULL);
-    if (size == 0)
-    {
-        return false;
-    }
-
-    std::vector<char> verionInfo;
-    verionInfo.resize(size);
-    BOOL result = GetFileVersionInfo(path, 0, size, verionInfo.data());
-    if (!result || GetLastError() != S_OK)
-    {
-        return false;
-    }
-
-    VS_FIXEDFILEINFO *vinfo;
-    result = VerQueryValue(verionInfo.data(), L"\\", (LPVOID *)&vinfo, &size);
-    if (!result || size < sizeof(VS_FIXEDFILEINFO))
-    {
-        return false;
-    }
-
-    cout << "Windows version: "
-        << (int)HIWORD(vinfo->dwProductVersionMS) << "."
-        << (int)LOWORD(vinfo->dwProductVersionMS) << "."
-        << (int)HIWORD(vinfo->dwProductVersionLS) << endl << endl;
-
-    return HIWORD(vinfo->dwProductVersionMS) >= 10;
-}
 
 void printPortNames(const WinRTMidiPortWatcherPtr watcher)
 {

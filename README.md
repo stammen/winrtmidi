@@ -90,7 +90,7 @@ If you do not check for Windows 10 and attempt to load the WinRTMidi DLL on Wind
 	![Application Manifest Path](Images/manifest.png "Application Manifest Path")
 	
 1. Use the following function to test for Windows 10 in your application. If the function returns true, it is safe to load the WinRTMidi DLL.
-This method will work with Visual Studio 2010-2015.
+This method will work with Visual Studio 2010-2015. This method is also provided in WinRTMidi\WindowsVersionHelper.cpp and .h which you can add to your project.
 
 	``` c++
 		bool windows10orGreaterWithManifest()
@@ -119,7 +119,8 @@ installed on the device running your application.
 		#pragma comment(lib, "version.lib") 
 	``` 
 
-1. Use the following function to test for Windows 10. The function obtains the path to kernel32.dll and checks its version number.
+1. Use the following function to test for Windows 10. The function obtains the path to kernel32.dll and checks its version number. 
+This method is also provided in WinRTMidi\WindowsVersionHelper.cpp and .h which you can add to your project.
 
 	``` c++
 		bool windows10orGreater()

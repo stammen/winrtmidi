@@ -16,6 +16,7 @@
 #include "WinRTMidiPortWatcher.h"
 #include <memory>
 #include <string>
+#include <Windows.h>
 
 namespace WinRT
 {
