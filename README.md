@@ -17,7 +17,7 @@ The recommended steps to use this DLL are as follows:
 1. If your application is running on Windows 10, dynamically load the WinRTMidi DLL using **LoadLibrary()**.
 	* If your application is not running on Windows 10, continue to use the WinMM MIDI API.
 1. Get pointers to the various WinRTMIDI functions using **GetProcAddress()**.
-1. Initialize the WinRTMIDI API using the **winrt_initialize_midi()** function.
+1. Initialize the WinRTMidi API using the **winrt_initialize_midi()** function.
 1. Obtain a MIDI port using **winrt_open_midi_in_port()** or **winrt_open_midi_out_port()** functions.
 1. For more information see example code below.
 
