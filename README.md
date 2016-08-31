@@ -54,9 +54,8 @@ GetVersion() and GetVersionEx() have also been deprecated in Windows 10. In orde
 
 If you do not check for Windows 10 and attempt to load the WinRT DLL, your application will quit with the following error:
 
-	![WinRTDLL Load Error](./Images/dllerror.png?raw=true "WinRTDLL Load Error")
+![WinRT DLL Load Error](Images/dllloaderror.png "WinRT DLL Load Error")
 
-	_WinRTDLL Load Error_
 
 
 
