@@ -56,7 +56,7 @@ If you do not check for Windows 10 and attempt to load the WinRTMidi DLL on Wind
 
 ![WinRT DLL Load Error](Images/dllloaderror.png "WinRT DLL Load Error")
 
-## Testing for Windows 10 Using an Application Manifest <a id="application-manifest"/> ##
+## Method 1: Testing for Windows 10 Using an Application Manifest <a id="application-manifest"/> ##
 
 1. Create a file called app.manifest.
 1. Add the following XML to the app.manifest file:
@@ -107,7 +107,7 @@ If you do not check for Windows 10 and attempt to load the WinRTMidi DLL on Wind
 		}
 	```
 
-## Testing for Windows 10 using kernel32.dll <a id="kernel32-method"/>##
+## Method 2: Testing for Windows 10 using kernel32.dll <a id="kernel32-method"/>##
 
 If you do not want to add an application manifest to your application, you can still test for Windows 10 by checking the version of kernel32.dll 
 installed on the device running your application.
