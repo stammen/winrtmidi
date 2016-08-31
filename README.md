@@ -7,7 +7,8 @@ If your application is running on devices with Windows 7 or Windows 8/8.1, the W
 attempting to load the DLL (See [Testing for Windows 10](#testing-for-windows-10) below).  The Windows::Devices::Midi API is ony available on devices running Windows 10.
 
 This DLL is useful for the scenario where you have an existing Win32 MIDI application and want to use the new Windows::Devices::Midi API. If you are not able to update your application to a 
-Windows 10 UWP app, you can use the WinRTMidi DLL to access the Windows::Devices::Midi API when your application  is running on a device with Windows 10. 
+Windows 10 UWP app, you can use the WinRTMidi DLL to access the Windows::Devices::Midi API when your application  is running on a device with Windows 10. You can use the WinRTMidi DLL with
+applications build with Visual Studio 2010-2015. There is no need to rebuilt your application with Visual Studio 2015 to access the Windows::Devices::Midi API using the WinRTMidi DLL.
 
 The recommended steps to use this DLL are as follows:
 
@@ -89,6 +90,7 @@ If you do not check for Windows 10 and attempt to load the WinRTMidi DLL on Wind
 	![Application Manifest Path](Images/manifest.png "Application Manifest Path")
 	
 1. Use the following function to test for Windows 10 in your application. If the function returns true, it is safe to load the WinRTMidi DLL.
+This method will work with Visual Studio 2010-2015.
 
 	``` c++
 		bool windows10orGreaterWithManifest()
