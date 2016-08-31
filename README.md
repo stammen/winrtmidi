@@ -88,7 +88,7 @@ If you do not check for Windows 10 and attempt to load the WinRTMidi DLL on Wind
 
 	![Application Manifest Path](Images/manifest.png "Application Manifest Path")
 	
-1. Use the following function to test for Windows 10 in your application
+1. Use the following function to test for Windows 10 in your application. If the function returns true, it is safe to load the WinRTMidi DLL.
 
 	``` c++
 		bool windows10orGreaterWithManifest()
@@ -109,8 +109,46 @@ If you do not check for Windows 10 and attempt to load the WinRTMidi DLL on Wind
 
 ## Testing for Windows 10 Using kernal32.dll <a id="kernel32-method"/>##
 
+If you do not want to add an application manifest to your application, you can still test for Windows 10 by checking the version of kernel32.dll 
+installed on the device running your application.
 
+1. Add  ``` c++ #pragma comment(lib, "version.lib") ``` to the source file you will use to test for Windows 10.
 
+1. Use the following function to test for Windows 10. The function obtains the path to kernel32.dll and checks its version number
+
+	``` c++
+		bool windows10orGreater()
+		{
+			static const wchar_t kernel32[] = L"\\kernel32.dll";
+			wchar_t path[MAX_PATH];
+
+			unsigned int n = GetSystemDirectory(path, MAX_PATH);
+			memcpy_s(path + n, MAX_PATH, kernel32, sizeof(kernel32));
+
+			unsigned int size = GetFileVersionInfoSize(path, NULL);
+			if (size == 0)
+			{
+				return false;
+			}
+
+			std::vector<char> verionInfo;
+			verionInfo.resize(size);
+			BOOL result = GetFileVersionInfo(path, 0, size, verionInfo.data());
+			if (!result || GetLastError() != S_OK)
+			{
+				return false;
+			}
+
+			VS_FIXEDFILEINFO *vinfo;
+			result = VerQueryValue(verionInfo.data(), L"\\", (LPVOID *)&vinfo, &size);
+			if (!result || size < sizeof(VS_FIXEDFILEINFO))
+			{
+				return false;
+			}
+
+			return HIWORD(vinfo->dwProductVersionMS) >= 10;
+		}
+	```
 
 
 
