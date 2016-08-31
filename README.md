@@ -18,7 +18,7 @@ The recommended steps to use this DLL are as follows:
 	* If your application is not running on Windows 10, continue to use the WinMM MIDI API.
 1. Get pointers to the various WinRTMIDI functions using **GetProcAddress()**.
 1. Initialize the WinRTMidi API using the **winrt_initialize_midi()** function.
-1. Obtain a MIDI port using **winrt_open_midi_in_port()** or **winrt_open_midi_out_port()** functions.
+1. Obtain a MIDI port using the **winrt_open_midi_in_port()** or **winrt_open_midi_out_port()** functions.
 1. For more information see example code below.
 
 
@@ -114,9 +114,12 @@ This method will work with Visual Studio 2010-2015.
 If you do not want to add an application manifest to your application, you can still test for Windows 10 by checking the version of kernel32.dll 
 installed on the device running your application.
 
-1. Add  ``` c++ #pragma comment(lib, "version.lib") ``` to the source file you will use to test for Windows 10.
+1. Add the following to the source file you will use to test for Windows 10.
+	``` c++ 
+		#pragma comment(lib, "version.lib") 
+	``` 
 
-1. Use the following function to test for Windows 10. The function obtains the path to kernel32.dll and checks its version number
+1. Use the following function to test for Windows 10. The function obtains the path to kernel32.dll and checks its version number.
 
 	``` c++
 		bool windows10orGreater()
