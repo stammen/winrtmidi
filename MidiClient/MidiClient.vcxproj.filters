@@ -32,9 +32,6 @@
     <ClCompile Include="MidiClient.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\WinRTMidi\WindowsVersionHelper.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="app.manifest" />
