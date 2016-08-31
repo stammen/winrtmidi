@@ -8,7 +8,7 @@ attempting to load the DLL (See [Testing for Windows 10](#testing-for-windows-10
 
 This DLL is useful for the scenario where you have an existing Win32 MIDI application and want to use the new Windows::Devices::Midi API. If you are not able to update your application to a 
 Windows 10 UWP app, you can use the WinRTMidi DLL to access the Windows::Devices::Midi API when your application  is running on a device with Windows 10. You can use the WinRTMidi DLL with
-applications build with Visual Studio 2010-2015. There is no need to rebuilt your application with Visual Studio 2015 to access the Windows::Devices::Midi API using the WinRTMidi DLL.
+applications build with Visual Studio 2010-2015. There is no need to rebuild your application with Visual Studio 2015 to access the Windows::Devices::Midi API using the WinRTMidi DLL.
 
 The recommended steps to use this DLL are as follows:
 
