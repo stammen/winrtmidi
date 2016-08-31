@@ -12,7 +12,7 @@ applications built with Visual Studio 2010-2015. There is no need to rebuild you
 
 The recommended steps to use this DLL are as follows:
 
-1. Add the WinRTMidi DLL to your Win32 application but do not link to the DLL.
+1. Ship the WinRTMidi DLL with your Win32 application but do not link to the DLL.
 1. When your Win32 application runs, check if your application is running on Windows 10 (See [Testing for Windows 10](#testing-for-windows-10) below).
 1. If your application is running on Windows 10, dynamically load the WinRTMidi DLL using **LoadLibrary()**.
 	* If your application is not running on Windows 10, continue to use the WinMM MIDI API.
