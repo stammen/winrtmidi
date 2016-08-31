@@ -42,8 +42,34 @@ WinRTMidiOutPortSendFunc    gMidiOutPortSendFunc = nullptr;
 WinRTMidiOutPortPtr gMidiOutPort = nullptr;
 
 /*
+    Windows 8.1 and higher make it difficult to detect Windows OS version.
+    Without an App Manifest indicating Windows 10 support, the Win32
+    Version functions will return 6.2.0.0 for Windows 8.1 and above.
+    This method requires adding an app manifest to ensure correct
+    Windows 10 version numbers.
+*/
+bool windows10orGreaterWithManifest()
+{
+    OSVERSIONINFOEX  osvi;
+    DWORDLONG dwlConditionMask = 0;
+    int op = VER_GREATER_EQUAL;
+
+    ZeroMemory(&osvi, sizeof(OSVERSIONINFOEX));
+    osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
+    osvi.dwMajorVersion = 10;
+    VER_SET_CONDITION(dwlConditionMask, VER_MAJORVERSION, op);
+
+    BOOL result = VerifyVersionInfo(&osvi, VER_MAJORVERSION ,dwlConditionMask);
+    return result ? true : false;
+}
+
+/*
     Windows 8.1 and higher make it difficult to access Windows OS version.
+    Without an App Manifest indicating Windows 10 support, the Win32
+    Version functions will return 6.2.0.0 for Windows 8.1 and above.
     This function checks OS version by getting version of kernel32.dll.
+    This method does not require adding an app manifest to ensure correct 
+    Windows 10 version numbers.
 */
 bool windows10orGreater()
 {
@@ -162,7 +188,7 @@ int main()
     //Load the WinRTMidi dll
 
     //Load the WinRTMidi dll
-    if (windows10orGreater())
+    if (windows10orGreaterWithManifest())
     {
         dllHandle = LoadLibrary(L"WinRTMidi.dll");
     }
