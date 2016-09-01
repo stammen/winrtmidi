@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+    <metadata>
+        <id>WinRTMidi</id>
+        <version>0.0.0-SpecifyVersionOnCommandline</version>
+        <title>WinRTMidi DLL for Win32 Access to Windows::Devices::Midi API</title>
+        <authors>Microsoft</authors>
+        <owners>angle,microsoft</owners>
+        <description>Enables Win32 applications to access the Windows::Devices::Midi API when running on Windows 10 </description>
+        <projectUrl>https://github.com/stammen/winrtmidi</projectUrl>
+        <licenseUrl>https://github.com/stammen/winrtmidi/blob/master/license.md</licenseUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <copyright>Copyright (C) Microsoft Corporation.</copyright>
+        <tags>Windows::Devices::Midi Windows.Devices.Midi C++ WinRT Win32 native</tags>
+    </metadata>
+
+    <files>
+      <!-- UAP -->
+      <file src="..\Release\winrtmidi.dll" target="bin\Win32" />
+      <file src="..\Release\winrtmidi.lib" target="bin\Win32" />
+      <file src="..\Release\winrtmidi.pdb" target="bin\Win32" />
+      <file src="..\x64\Release\winrtmidi.dll" target="bin\x64" />
+      <file src="..\x64\Release\winrtmidi.lib" target="bin\x64" />
+      <file src="..\x64\Release\winrtmidi.pdb" target="bin\x64" />
+
+
+      <!-- Headers -->
+      <file src="..\WinRTMidi\WinRTMidi.h" target="Include\" />
+      <file src="..\WinRTMidi\WindowsVersionHelper.h" target="Include\" />
+
+
+      <!-- Build scripts -->
+      <file src="winrtmidi.targets" target="build\native" />
+
+      <!-- Other files -->
+      <file src="..\LICENSE" />
+
+      <!-- SHA-1 hash of the git HEAD this package was built from -->
+      <file src=".\winrtmidi.githash.txt" />
+    </files>
+</package>
