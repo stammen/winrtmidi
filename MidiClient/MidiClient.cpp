@@ -43,13 +43,13 @@ WinRTMidiOutPortPtr gMidiOutPort = nullptr;
 
 void printPortNames(const WinRTMidiPortWatcherPtr watcher)
 {
-    if (watcher == nullptr)
+    if(watcher == nullptr)
     {
         return;
     }
 
     WinRTMidiPortType type = gWatcherPortTypeFunc(watcher);
-    if (type == In)
+    if(type == In)
     {
         cout << "MIDI In Ports" << endl;
     }
@@ -94,7 +94,7 @@ void midiPortChangedCallback(const WinRTMidiPortWatcherPtr portWatcher, WinRTMid
 
 void midiInCallback(const WinRTMidiInPortPtr port, double timeStamp, const unsigned char* message, unsigned int nBytes)
 {
-    if (gMidiOutPort != nullptr)
+    if(gMidiOutPort != nullptr)
     {
         gMidiOutPortSendFunc(gMidiOutPort, message, nBytes);
     }
@@ -105,7 +105,7 @@ void midiInCallback(const WinRTMidiInPortPtr port, double timeStamp, const unsig
         cout << "Byte " << i << " = " << (int)message[i] << ", ";
     }
 
-    if (nBytes > 0)
+    if(nBytes > 0)
     {
         cout << "timestamp = " << timeStamp << endl;
     }
@@ -121,12 +121,12 @@ int main()
     //Load the WinRTMidi dll
 
     //Load the WinRTMidi dll
-    if (windows10orGreaterWithManifest())
+    if(windows10orGreaterWithManifest())
     {
         dllHandle = LoadLibrary(L"WinRTMidi.dll");
     }
 
-    if (NULL == dllHandle)
+    if(NULL == dllHandle)
     {
         cout << "Unable to load WinRTMidi.dll" << endl;
         goto cleanup;
@@ -178,7 +178,7 @@ int main()
 
     // open midi in port 0
     result = gMidiInPortOpenFunc(midiPtr, 0, midiInCallback, &midiInPort);
-    if (result != WINRT_NO_ERROR)
+    if(result != WINRT_NO_ERROR)
     {
         cout << "Unable to create Midi In port" << endl;
         goto cleanup;
@@ -186,7 +186,7 @@ int main()
 
     // open midi out port 0
     result = gMidiOutPortOpenFunc(midiPtr, 0, &gMidiOutPort);
-    if (result != WINRT_NO_ERROR)
+    if(result != WINRT_NO_ERROR)
     {
         cout << "Unable to create Midi Out port" << endl;
         goto cleanup;
@@ -194,10 +194,10 @@ int main()
 
     // example on how get midi port info
     const WinRTMidiPortWatcherPtr watcher = gMidiGetPortWatcher(midiPtr, In);
-    if (watcher != nullptr)
+    if(watcher != nullptr)
     {
         unsigned int numPorts = gWatcherPortCountFunc(watcher);
-        if (numPorts > 0)
+        if(numPorts > 0)
         {
             const char* name = gWatcherPortNameFunc(watcher, 0);
         }
@@ -228,7 +228,7 @@ cleanup:
     }
 
     //Free the library:
-    if (dllHandle)
+    if(dllHandle)
     {
         FreeLibrary(dllHandle);
     }
