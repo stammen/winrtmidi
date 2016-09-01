@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <metadata>
-        <id>WinRTMidi</id>
+        <id>winrtmidi</id>
         <version>0.0.0-SpecifyVersionOnCommandline</version>
-        <title>WinRTMidi DLL for Win32 Access to Windows::Devices::Midi API</title>
+        <title>winrtmidi DLL for Win32 application access to Windows::Devices::Midi API</title>
         <authors>Microsoft</authors>
         <owners>angle,microsoft</owners>
-        <description>Enables Win32 applications to access the Windows::Devices::Midi API when running on Windows 10 </description>
+        <description>Enables Win32 applications to access the Windows::Devices::Midi API when running on Windows 10.</description>
         <projectUrl>https://github.com/stammen/winrtmidi</projectUrl>
-        <licenseUrl>https://github.com/stammen/winrtmidi/blob/master/license.md</licenseUrl>
+        <licenseUrl>https://github.com/stammen/winrtmidi/blob/master/LICENSE</licenseUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <copyright>Copyright (C) Microsoft Corporation.</copyright>
         <tags>Windows::Devices::Midi Windows.Devices.Midi C++ WinRT Win32 native</tags>
