@@ -129,7 +129,7 @@ int main()
     }
 #else
 	//Load the WinRTMidi dll
-	if (windows10orGreaterWithManifest())
+	if (windows10orGreater())
 	{
 		dllHandle = LoadLibrary(L"WinRTMidi.dll");
 	}
