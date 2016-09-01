@@ -120,15 +120,12 @@ int main()
     WinRTMidiInPortPtr midiInPort = nullptr;
 
     //Load the WinRTMidi dll
-
 #ifdef USING_APP_MANIFEST
-    //Load the WinRTMidi dll
     if(windows10orGreaterWithManifest())
     {
         dllHandle = LoadLibrary(L"WinRTMidi.dll");
     }
 #else
-	//Load the WinRTMidi dll
 	if (windows10orGreater())
 	{
 		dllHandle = LoadLibrary(L"WinRTMidi.dll");
