@@ -126,10 +126,10 @@ int main()
         dllHandle = LoadLibrary(L"WinRTMidi.dll");
     }
 #else
-	if (windows10orGreater())
-	{
-		dllHandle = LoadLibrary(L"WinRTMidi.dll");
-	}
+    if (windows10orGreater())
+    {
+        dllHandle = LoadLibrary(L"WinRTMidi.dll");
+    }
 #endif
 
     if(NULL == dllHandle)
@@ -198,6 +198,18 @@ int main()
         goto cleanup;
     }
 
+    // send a note on message to the midi out port
+    unsigned char buffer[3] = { 144, 60 , 127 };
+    cout << "Sending Note On to midi output port 0" << endl;
+    gMidiOutPortSendFunc(gMidiOutPort, buffer, 3);
+
+    Sleep(500);
+
+    // send a note off message to the midi out port
+    cout << "Sending Note Off to midi output port 0" << endl;
+    buffer[0] = 128;
+    gMidiOutPortSendFunc(gMidiOutPort, buffer, 3);
+
     // example on how get midi port info
     const WinRTMidiPortWatcherPtr watcher = gMidiGetPortWatcher(midiPtr, In);
     if(watcher != nullptr)
@@ -209,8 +221,9 @@ int main()
         }
     }
 
-cleanup:
+    cout << endl << "Sending midi in data to midi out port..." << endl;
 
+cleanup:
     // process midi until user presses key on keyboard
     cout << "Press any key to exit..." << endl;
     char c = _getch();
