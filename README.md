@@ -40,12 +40,11 @@ Visual Studio 2015 (Update 3 recommended) with **Universal Windows App Developme
 
 # Adding the winrtmidi DLL to your Win32 Project #
 
-Please note that winrtmidi dll is a native nuget package and is not compatible with C# projects. You will need to manually download the dll from nuget using the download instructions below and incorporate it into your C# project (just like any other native c dll). You will then use pinvoke to call its methods.
-
 Your Win32 application should not statically link to the winrtmidi DLL as it will only load if your application is running on Windows 10. Therefore, you will need to check if your app is 
 running on Windows 10 **before** attempting to load the winrtmidi DLL. You will ship the winrtmidi DLL and dynamically load it when required by your application.
 
-In order to make it easy to add the winrtdll to your application, we have provided a prebuilt version of the DLL as a NuGet package. The NuGet package is available at: https://www.nuget.org/packages/winrtmidi/
+In order to make it easy to add the winrtdll to your application, we have provided a prebuilt version of the DLL as a NuGet package. The NuGet package is available at: https://www.nuget.org/packages/winrtmidi/ Please note that this is a native nuget package and is not compatible with C# projects. You will need to manually download the dll from nuget using the download instructions below and incorporate it into your C# project (just like any other native c dll). You will then use pinvoke to call its methods.
+
 
 You can add the winrtmidi NuGet package to your Visual Studio 2010 to 2015 project. Please note that Visual Studio 2010 SP1 is required to correctly support incremental link in debug builds.
 
