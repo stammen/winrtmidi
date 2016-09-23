@@ -138,7 +138,15 @@ WinRTMidiErrorType WinRTMidiInPort::OpenPort(Platform::String^ id)
     {
         // block until port is created
         mMidiInPort = task.get();
-        mMidiInPort->MessageReceived += ref new Windows::Foundation::TypedEventHandler<MidiInPort ^, MidiMessageReceivedEventArgs ^>(this, &WinRTMidiInPort::OnMidiInMessageReceived);
+		if (mMidiInPort != nullptr)
+		{
+			mMidiInPort->MessageReceived += ref new Windows::Foundation::TypedEventHandler<MidiInPort ^, MidiMessageReceivedEventArgs ^>(this, &WinRTMidiInPort::OnMidiInMessageReceived);
+		}
+		else
+		{
+			// no exception but we didn't get a valid port
+			result = WINRT_OPEN_PORT_ERROR;
+		}
     }
     catch (Platform::Exception^ ex)
     {
@@ -206,6 +214,11 @@ WinRTMidiErrorType WinRTMidiOutPort::OpenPort(Platform::String^ id)
     {
         // blocks until port is created
         mMidiOutPort = task.get();
+		if (mMidiOutPort == nullptr)
+		{
+			// no exception but we didn't get a valid port
+			result = WINRT_OPEN_PORT_ERROR;
+		}
     }
     catch (Platform::Exception^ ex)
     {
