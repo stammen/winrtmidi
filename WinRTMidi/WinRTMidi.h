@@ -41,9 +41,14 @@ namespace WinRT
     typedef void* WinRTMidiOutPortPtr;
 
     // Midi port changed callback
+    // 
     typedef void(*MidiPortChangedCallback) (const WinRTMidiPortWatcherPtr portWatcher, WinRTMidiPortUpdateType update);
 
     // Midi In callback
+    // Note: timeStamp is now the duration from when the MidiInPort was created to the time the midi message was received. Client will need to
+    // calculate the delta times between midi messages. Timestamp value is in milliseconds.
+    // To receive delta times (previous behavior), define WINRTMIDI_REPORT_DELTA_TIME and rebuild the winrtmidi dll.
+    //#define WINRTMIDI_REPORT_DELTA_TIME
     typedef void(*WinRTMidiInCallback) (const WinRTMidiInPortPtr port, double timeStamp, const unsigned char* message, unsigned int nBytes);
 
     // WinRT Midi Functions
