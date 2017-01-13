@@ -16,6 +16,7 @@
 #include <iostream>
 #include <string>
 #include <conio.h>
+#include <assert.h>
 
 #define USING_APP_MANIFEST
 #define WIN32_LEAN_AND_MEAN
@@ -38,6 +39,9 @@ WinRTMidiInPortFreeFunc     gMidiInPortFreeFunc = nullptr;
 WinRTMidiOutPortOpenFunc    gMidiOutPortOpenFunc = nullptr;
 WinRTMidiOutPortFreeFunc    gMidiOutPortFreeFunc = nullptr;
 WinRTMidiOutPortSendFunc    gMidiOutPortSendFunc = nullptr;
+
+// Midi In port
+WinRTMidiInPortPtr gMidiInPort = nullptr;
 
 // Midi Out port
 WinRTMidiOutPortPtr gMidiOutPort = nullptr;
@@ -95,6 +99,8 @@ void midiPortChangedCallback(const WinRTMidiPortWatcherPtr portWatcher, WinRTMid
 
 void midiInCallback(const WinRTMidiInPortPtr port, double timeStamp, const unsigned char* message, unsigned int nBytes)
 {
+    assert(port == gMidiInPort);
+
     if(gMidiOutPort != nullptr)
     {
         gMidiOutPortSendFunc(gMidiOutPort, message, nBytes);
@@ -117,7 +123,6 @@ int main()
 {
     HINSTANCE dllHandle = NULL;
     WinRTMidiPtr midiPtr = nullptr;
-    WinRTMidiInPortPtr midiInPort = nullptr;
 
     //Load the WinRTMidi dll
 #ifdef USING_APP_MANIFEST
@@ -183,7 +188,7 @@ int main()
     }
 
     // open midi in port 0
-    result = gMidiInPortOpenFunc(midiPtr, 0, midiInCallback, &midiInPort);
+    result = gMidiInPortOpenFunc(midiPtr, 0, midiInCallback, &gMidiInPort);
     if(result != WINRT_NO_ERROR)
     {
         cout << "Unable to create Midi In port" << endl;
@@ -231,17 +236,17 @@ cleanup:
 
     // clean up midi objects
     // okay to call with nullptrs
-    if(gMidiOutPortFreeFunc)
+    if(gMidiOutPortFreeFunc && gMidiOutPort)
     {
         gMidiOutPortFreeFunc(gMidiOutPort);
     }
 
-    if(gMidiInPortFreeFunc)
+    if(gMidiInPortFreeFunc && gMidiInPort)
     {
-        gMidiInPortFreeFunc(midiInPort);
+        gMidiInPortFreeFunc(gMidiInPort);
     }
 
-    if(gMidiFreeFunc)
+    if(gMidiFreeFunc && midiPtr)
     {
         gMidiFreeFunc(midiPtr);
     }

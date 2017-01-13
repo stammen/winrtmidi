@@ -171,8 +171,12 @@ void WinRTMidiInPort::OnMidiInMessageReceived(MidiInPort^ sender, MidiMessageRec
             mLastMessageTime = args->Message->Timestamp.Duration;
         }
 
+#ifdef WINRTMIDI_REPORT_DELTA_TIME
         double timestamp = (args->Message->Timestamp.Duration - mLastMessageTime) * .0001;
         mLastMessageTime = args->Message->Timestamp.Duration;
+#else
+        double timestamp = args->Message->Timestamp.Duration * .0001;
+#endif
 
         auto buffer = args->Message->RawData;
 
@@ -184,7 +188,7 @@ void WinRTMidiInPort::OnMidiInMessageReceived(MidiInPort^ sender, MidiMessageRec
         // Get pointer to iBuffer bytes 
         byte* pData;
         pBufferByteAccess->Buffer(&pData);
-        mMessageReceivedCallback((WinRTMidiInPortPtr) this, timestamp, pData, buffer->Length);
+        mMessageReceivedCallback(mPortWrapper, timestamp, pData, buffer->Length);
     }
 }
 

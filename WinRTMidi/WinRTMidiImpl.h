@@ -34,6 +34,13 @@ namespace WinRT
         const std::string& GetErrorMessage();
         WinRTMidiErrorType GetError();
 
+        void SetMidiPortWrapper(WinRTMidiInPortPtr portWrapper)
+        {
+            mPortWrapper = portWrapper;
+        }
+
+        WinRTMidiInPortPtr mPortWrapper; // C++ object that wraps this WinRT object and is used by the client to indentify this port.
+
     private:
         std::string mErrorMessage;
         WinRTMidiErrorType mError;
@@ -55,9 +62,11 @@ namespace WinRT
         virtual WinRTMidiErrorType OpenPort(Platform::String^ id) override;
 
         // needs to be internal as MidiInMessageReceivedCallbackType is not a WinRT type
-        void SetMidiInCallback(WinRTMidiInCallback callback) {
+        void SetMidiInCallback(WinRTMidiInCallback callback) 
+        {
             mMessageReceivedCallback = callback;
         };
+
 
     private:
         void OnMidiInMessageReceived(Windows::Devices::Midi::MidiInPort^ sender, Windows::Devices::Midi::MidiMessageReceivedEventArgs^ args);
@@ -112,6 +121,7 @@ namespace WinRT
             : mPort(port)
         {
             mPort->SetMidiInCallback(callback);
+            mPort->SetMidiPortWrapper((WinRTMidiInPortPtr)this);
         }
 
         WinRTMidiInPort^ getPort() { return mPort; };
@@ -125,7 +135,9 @@ namespace WinRT
     public:
         MidiOutPortWrapper(WinRTMidiOutPort^ port)
             : mPort(port)
-        {}
+        {
+            mPort->SetMidiPortWrapper((WinRTMidiInPortPtr)this);
+        }
 
         WinRTMidiOutPort^ getPort() { return mPort; };
 
