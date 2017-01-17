@@ -90,6 +90,7 @@ Platform::String^ WinRTMidi::getPortId(WinRTMidiPortType type, unsigned int inde
 WinRTMidiPort::WinRTMidiPort()
     : mErrorMessage("")
     , mError(WINRT_NO_ERROR)
+    , mPortWrapper(nullptr)
 {
 
 }
