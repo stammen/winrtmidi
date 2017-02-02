@@ -71,7 +71,7 @@ namespace WinRT
         };
        
         // Constructor needs to be internal as this is an unsealed ref base class
-        WinRTMidiPortWatcher(WinRTMidiPortType type, MidiPortChangedCallback callback = nullptr);
+        WinRTMidiPortWatcher(WinRTMidiPortType type, MidiPortChangedCallback callback = nullptr, void* context = nullptr);
 
         // needs to be internal as std::string is not a WinRT type
         const std::string& WinRTMidiPortWatcher::GetPortName(unsigned int portNumber);
@@ -92,6 +92,7 @@ namespace WinRT
         MidiPortChangedCallback mPortChangedCallback;
         WinRTMidiPortType mPortType;
         bool mPortEnumerationComplete;
+        void* mContext;
     };
 
 

@@ -27,10 +27,11 @@ using namespace Microsoft::WRL;
     WinRTMidiInPort
 *****************************************************/
 
-WinRTMidi::WinRTMidi(MidiPortChangedCallback callback)
+WinRTMidi::WinRTMidi(MidiPortChangedCallback callback, void* context)
 {
-    mMidiInPortWatcher = ref new WinRTMidiPortWatcher(WinRTMidiPortType::In, callback);
-    mMidiOutPortWatcher = ref new WinRTMidiPortWatcher(WinRTMidiPortType::Out, callback);
+    mContext = context;
+    mMidiInPortWatcher = ref new WinRTMidiPortWatcher(WinRTMidiPortType::In, callback, context);
+    mMidiOutPortWatcher = ref new WinRTMidiPortWatcher(WinRTMidiPortType::Out, callback, context);
     mMidiInPortWatcherWrapper = std::make_shared<MidiPortWatcherWrapper>(mMidiInPortWatcher);
     mMidiOutPortWatcherWrapper = std::make_shared<MidiPortWatcherWrapper>(mMidiOutPortWatcher);
 }
@@ -116,8 +117,9 @@ WinRTMidiErrorType WinRTMidiPort::GetError()
     return mError;
 }
 
-WinRTMidiInPort::WinRTMidiInPort()
+WinRTMidiInPort::WinRTMidiInPort(void* context)
     : mMessageReceivedCallback(nullptr)
+    , mContext(context)
 {
 }
 
@@ -193,7 +195,7 @@ void WinRTMidiInPort::OnMidiInMessageReceived(MidiInPort^ sender, MidiMessageRec
         // Get pointer to iBuffer bytes 
         byte* pData;
         pBufferByteAccess->Buffer(&pData);
-        mMessageReceivedCallback(mPortWrapper, timestamp, pData, buffer->Length);
+        mMessageReceivedCallback(mPortWrapper, timestamp, pData, buffer->Length, mContext);
     }
 }
 
@@ -203,7 +205,8 @@ void WinRTMidiInPort::OnMidiInMessageReceived(MidiInPort^ sender, MidiMessageRec
 *****************************************************/
 
 #define kOutputMidiBufferSize 128
-WinRTMidiOutPort::WinRTMidiOutPort()
+WinRTMidiOutPort::WinRTMidiOutPort(void* context)
+    : mContext(context)
 {
     mBuffer = ref new Buffer(kOutputMidiBufferSize);
     mBufferData = getIBufferDataPtr(mBuffer);

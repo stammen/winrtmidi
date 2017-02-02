@@ -17,7 +17,6 @@
 #include <codecvt>
 #include <ppltasks.h>
 
-
 using namespace Windows::Devices::Midi;
 using namespace Windows::Devices::Enumeration;
 using namespace Windows::Foundation;
@@ -41,10 +40,11 @@ namespace WinRT
         return stringUtf8;
     }
 
-    WinRTMidiPortWatcher::WinRTMidiPortWatcher(WinRTMidiPortType type, MidiPortChangedCallback callback)
+    WinRTMidiPortWatcher::WinRTMidiPortWatcher(WinRTMidiPortType type, MidiPortChangedCallback callback, void* context)
         : mPortEnumerationComplete(false)
         , mPortChangedCallback(callback)
         , mPortType(type)
+        , mContext(context)
     {
  
     }
@@ -170,7 +170,7 @@ namespace WinRT
 
         if (mPortChangedCallback != nullptr)
         {
-            mPortChangedCallback(&wrapper, update);
+            mPortChangedCallback(&wrapper, update, mContext);
         }
 
         mMidiPortUpdateEventHander(this, update);

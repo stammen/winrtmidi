@@ -19,7 +19,7 @@ namespace WinRT
 {
     static bool sInitialized = false;
 
-    WinRTMidiErrorType winrt_initialize_midi(MidiPortChangedCallback callback, WinRTMidiPtr* winrtMidi)
+    WinRTMidiErrorType winrt_initialize_midi(MidiPortChangedCallback callback, WinRTMidiPtr* winrtMidi, void* context)
     {
         *winrtMidi = nullptr;
 
@@ -41,7 +41,7 @@ namespace WinRT
         }
 
         // attempt to initialize the Midi Portwatchers
-        WinRTMidi* midi = new WinRTMidi(callback);
+        WinRTMidi* midi = new WinRTMidi(callback, context);
         WinRTMidiErrorType result = midi->Initialize();
         if(result != WINRT_NO_ERROR)
         {
@@ -70,7 +70,7 @@ namespace WinRT
         return midiPtr->GetPortWatcherWrapper(type);
     }
 
-    WinRTMidiErrorType winrt_open_midi_in_port(WinRTMidiPtr midi, unsigned int index, WinRTMidiInCallback callback, WinRTMidiInPortPtr* midiPort)
+    WinRTMidiErrorType winrt_open_midi_in_port(WinRTMidiPtr midi, unsigned int index, WinRTMidiInCallback callback, WinRTMidiInPortPtr* midiPort, void* context)
     {
         *midiPort = nullptr;
         WinRTMidiErrorType result = WINRT_NO_ERROR;
@@ -88,7 +88,7 @@ namespace WinRT
             return WINRT_INVALID_PORT_INDEX_ERROR;
         }
 
-        auto port = ref new WinRTMidiInPort;
+        auto port = ref new WinRTMidiInPort(context);
         result = port->OpenPort(id);
         if (result == WINRT_NO_ERROR)
         {
@@ -107,7 +107,7 @@ namespace WinRT
     }
 
     // WinRT Midi Out port functions
-    WinRTMidiErrorType winrt_open_midi_out_port(WinRTMidiPtr midi, unsigned int index, WinRTMidiOutPortPtr* midiPort)
+    WinRTMidiErrorType winrt_open_midi_out_port(WinRTMidiPtr midi, unsigned int index, WinRTMidiOutPortPtr* midiPort, void* context)
     {
         *midiPort = nullptr;
         WinRTMidiErrorType result = WINRT_NO_ERROR;
@@ -125,7 +125,7 @@ namespace WinRT
             return WINRT_INVALID_PORT_INDEX_ERROR;
         }
 
-        auto port = ref new WinRTMidiOutPort;
+        auto port = ref new WinRTMidiOutPort(context);
         result = port->OpenPort(id);
         if (result == WINRT_NO_ERROR)
         {

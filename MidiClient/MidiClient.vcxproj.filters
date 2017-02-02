@@ -24,12 +24,18 @@
     <ClInclude Include="..\WinRTMidi\WindowsVersionHelper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="MidiClient.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="MidiClient.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
