@@ -17,16 +17,21 @@
 
 namespace WinRT
 {
+    static bool sInitialized = false;
+
     WinRTMidiErrorType winrt_initialize_midi(MidiPortChangedCallback callback, WinRTMidiPtr* winrtMidi)
     {
         *winrtMidi = nullptr;
 
         // Initialize the Windows Runtime.
-        static Microsoft::WRL::Wrappers::RoInitializeWrapper initialize(RO_INIT_MULTITHREADED);
-
-        if (!SUCCEEDED(initialize.operator HRESULT()))
+        if (!sInitialized)
         {
-            return WINRT_WINDOWS_RUNTIME_ERROR;
+            HRESULT hr = ::Windows::Foundation::Initialize(RO_INIT_MULTITHREADED);
+            if (hr != S_OK && hr != S_FALSE)
+            {
+                return WINRT_WINDOWS_RUNTIME_ERROR;
+            }
+            sInitialized = true;
         }
 
         // Check if Windows 10 midi api is supported
@@ -55,7 +60,7 @@ namespace WinRT
     {
         if (midi)
         {
-            delete midi;
+            delete (WinRTMidiPtr) midi;
         }
     }
 

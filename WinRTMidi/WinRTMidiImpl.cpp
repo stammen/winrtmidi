@@ -123,7 +123,7 @@ WinRTMidiInPort::WinRTMidiInPort()
 
 WinRTMidiInPort::~WinRTMidiInPort()
 {
-
+    ClosePort();
 }
 
 //Blocks until port is open
@@ -159,6 +159,10 @@ WinRTMidiErrorType WinRTMidiInPort::OpenPort(Platform::String^ id)
 
 void WinRTMidiInPort::ClosePort(void) 
 {
+    if (mMidiInPort)
+    {
+        delete mMidiInPort;
+    }
     mMidiInPort = nullptr;
 }
 
@@ -207,6 +211,7 @@ WinRTMidiOutPort::WinRTMidiOutPort()
 
 WinRTMidiOutPort::~WinRTMidiOutPort()
 {
+    ClosePort();
 }
 
 //Blocks until port is open
@@ -235,6 +240,10 @@ WinRTMidiErrorType WinRTMidiOutPort::OpenPort(Platform::String^ id)
 
 void WinRTMidiOutPort::ClosePort(void)
 {
+    if (mMidiOutPort)
+    {
+        delete mMidiOutPort;
+    }
     mMidiOutPort = nullptr;
 }
 
