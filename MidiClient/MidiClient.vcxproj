@@ -22,7 +22,7 @@
     <ProjectGuid>{D9B9A919-EEB9-4A83-BD27-2991DB01490A}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>MidiClient</RootNamespace>
-    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.14393.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
