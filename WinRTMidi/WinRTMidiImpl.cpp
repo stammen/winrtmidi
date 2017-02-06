@@ -263,6 +263,18 @@ byte* WinRTMidiOutPort::getIBufferDataPtr(IBuffer^ buffer)
     return pData;
 }
 
+byte* getIBufferDataPtr2(IBuffer^ buffer)
+{
+    // Query the IBufferByteAccess interface.
+    ComPtr<IBufferByteAccess> bufferByteAccess;
+    reinterpret_cast<IInspectable*>(buffer)->QueryInterface(IID_PPV_ARGS(&bufferByteAccess));
+
+    // Retrieve the buffer data.
+    byte* pData = nullptr;
+    bufferByteAccess->Buffer(&pData);
+    return pData;
+}
+
 void WinRTMidiOutPort::Send(const unsigned char* message, unsigned int nBytes)
 {
     // check if preallocated IBuffer is big enough and reallocate if needed

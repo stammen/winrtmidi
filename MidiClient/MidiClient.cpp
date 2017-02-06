@@ -92,12 +92,17 @@ void MidiClient::printPortNames(const WinRTMidiPortWatcherPtr watcher)
         cout << "MIDI Out Ports" << endl;
     }
 
+    auto cp = GetConsoleOutputCP();
+    SetConsoleOutputCP(CP_UTF8);
+
     int nPorts = mWatcherPortCountFunc(watcher);
     for (int i = 0; i < nPorts; i++)
     {
         const char* name = mWatcherPortNameFunc(watcher, i);
         cout << i << ": " << mWatcherPortNameFunc(watcher, i) << endl;
     }
+
+    SetConsoleOutputCP(cp);
 
     cout << endl;
 }
