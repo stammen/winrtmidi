@@ -210,6 +210,7 @@ WinRTMidiOutPort::WinRTMidiOutPort(void* context)
 {
     mBuffer = ref new Buffer(kOutputMidiBufferSize);
     mBufferData = getIBufferDataPtr(mBuffer);
+    InitializeCriticalSection(&mCriticalSection);
 }
 
 WinRTMidiOutPort::~WinRTMidiOutPort()
@@ -248,6 +249,7 @@ void WinRTMidiOutPort::ClosePort(void)
         delete mMidiOutPort;
     }
     mMidiOutPort = nullptr;
+    DeleteCriticalSection(&mCriticalSection);
 }
 
 byte* WinRTMidiOutPort::getIBufferDataPtr(IBuffer^ buffer)
@@ -277,6 +279,7 @@ byte* getIBufferDataPtr2(IBuffer^ buffer)
 
 void WinRTMidiOutPort::Send(const unsigned char* message, unsigned int nBytes)
 {
+    EnterCriticalSection(&mCriticalSection);
     // check if preallocated IBuffer is big enough and reallocate if needed
     if (nBytes > mBuffer->Capacity)
     {
@@ -287,6 +290,7 @@ void WinRTMidiOutPort::Send(const unsigned char* message, unsigned int nBytes)
     memcpy_s(mBufferData, nBytes, message, nBytes);
     mBuffer->Length = nBytes;
     mMidiOutPort->SendBuffer(mBuffer);
+    LeaveCriticalSection(&mCriticalSection);
 }
 
 

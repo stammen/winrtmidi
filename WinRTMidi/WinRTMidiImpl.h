@@ -96,6 +96,7 @@ namespace WinRT
         Windows::Storage::Streams::IBuffer^ mBuffer;
         byte* mBufferData;
         void* mContext;
+        CRITICAL_SECTION mCriticalSection;
     };
 
     class WinRTMidi
