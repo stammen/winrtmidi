@@ -17,6 +17,8 @@
 #include <cvt/wstring>
 #include <codecvt>
 #include <ppltasks.h>
+#include <mmsystem.h>
+#include <mmddk.h>
 
 using namespace Windows::Devices::Midi;
 using namespace Windows::Devices::Enumeration;
@@ -55,6 +57,8 @@ namespace WinRT
 
     WinRTMidiErrorType WinRTMidiPortWatcher::Initialize()
     {
+        UpdateOriginalMidiPortNames();
+
         auto task = create_task(create_async([this]
         {
             switch (mPortType)
@@ -109,6 +113,12 @@ namespace WinRT
 
     const std::string& WinRTMidiPortWatcher::GetPortName(unsigned int portNumber)
     {
+        auto id = GetPortId(portNumber);
+        auto it = mNameMap.find(id->Data());
+        if (it != mNameMap.end())
+        {
+            auto name = it->second;
+        }
         return mPortInfo[portNumber].get()->mName;
     }
 
@@ -168,6 +178,42 @@ namespace WinRT
         mSleepCondition.notify_one();
     }
 
+    void WinRTMidiPortWatcher::UpdateOriginalMidiPortNames()
+    {
+        mNameMap.clear();
+
+        if (mPortType == WinRTMidiPortType::In)
+        {
+            unsigned int devs = midiInGetNumDevs();
+            for (unsigned int dev = 0; dev < devs; dev++) {
+                MIDIINCAPS caps = {};
+                MMRESULT mmr = midiInGetDevCaps(dev, &caps, sizeof(caps));
+
+                if (MMSYSERR_NOERROR != mmr) {
+                    continue;
+                }
+
+                std::wstring id = GetMidiInDeviceInterfaceID(dev);
+                mNameMap[id] = caps.szPname;
+            }
+        }
+        else
+        {
+            unsigned int devs = midiOutGetNumDevs();
+            for (unsigned int dev = 0; dev < devs; dev++) {
+                MIDIOUTCAPS caps = {};
+                MMRESULT mmr = midiOutGetDevCaps(dev, &caps, sizeof(caps));
+
+                if (MMSYSERR_NOERROR != mmr) {
+                    continue;
+                }
+
+                std::wstring id = GetMidiInDeviceInterfaceID(dev);
+                mNameMap[id] = caps.szPname;
+            }
+        }
+    }
+
     void WinRTMidiPortWatcher::OnMidiPortUpdated(WinRTMidiPortUpdateType update)
     {
         MidiPortWatcherWrapper wrapper(this);
@@ -178,6 +224,92 @@ namespace WinRT
         }
 
         mMidiPortUpdateEventHander(this, update);
+    }
+
+    std::wstring WinRTMidiPortWatcher::GetMidiInDeviceInterfaceID(unsigned int i) {
+        // query the size of the device interface string
+        std::wstring result = L"";
+#pragma warning ( disable : 4312 )
+        HMIDIIN h = reinterpret_cast<HMIDIIN>(i);
+#pragma warning ( default : 4312 )
+        ULONG size = 0;
+        MMRESULT mmr = midiInMessage(
+            h,
+            DRV_QUERYDEVICEINTERFACESIZE,
+            reinterpret_cast<DWORD_PTR>(&size),
+            0
+        );
+
+        if (MMSYSERR_NOERROR != mmr) {
+            return result;
+        }
+
+        if (0 == size) {
+            return result;
+        }
+
+        if (size % sizeof(WCHAR)) {
+            return result;
+        }
+
+        result.resize(size / sizeof(WCHAR));
+
+        mmr = midiInMessage(
+            h,
+            DRV_QUERYDEVICEINTERFACE,
+            reinterpret_cast<DWORD_PTR>(&result[0]),
+            size
+        );
+
+        if (MMSYSERR_NOERROR != mmr) {
+            return L"";
+        }
+
+        return result;
+    }
+
+    std::wstring WinRTMidiPortWatcher::GetMidiOutDeviceInterfaceID(unsigned int i) {
+        // query the size of the device interface string
+        std::wstring result = L"";
+
+#pragma warning ( disable : 4312 )
+        HMIDIOUT h = reinterpret_cast<HMIDIOUT>(i);
+#pragma warning ( default : 4312 )
+
+        ULONG size = 0;
+        MMRESULT mmr = midiOutMessage(
+            h,
+            DRV_QUERYDEVICEINTERFACESIZE,
+            reinterpret_cast<DWORD_PTR>(&size),
+            0
+        );
+
+        if (MMSYSERR_NOERROR != mmr) {
+            return result;
+        }
+
+        if (0 == size) {
+            return result;
+        }
+
+        if (size % sizeof(WCHAR)) {
+            return result;
+        }
+
+        result.resize(size / sizeof(WCHAR));
+
+        mmr = midiOutMessage(
+            h,
+            DRV_QUERYDEVICEINTERFACE,
+            reinterpret_cast<DWORD_PTR>(&result[0]),
+            size
+        );
+
+        if (MMSYSERR_NOERROR != mmr) {
+            return L"";
+        }
+
+        return result;
     }
 }
 

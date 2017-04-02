@@ -12,11 +12,11 @@
 
 #pragma once
 
-#include <vector>
-#include <memory>
-#include <string>
 #include <condition_variable>
+#include <map>
+#include <memory>
 #include <mutex>
+#include <string>
 #include <vector>
 
 #include "WinRTMidi.h"
@@ -84,10 +84,21 @@ namespace WinRT
 
         void WaitForEnumeration();
 
+        // these methods are used to get the orginal Win32 MIDI port names and IDs
+        void UpdateOriginalMidiPortNames();
+        std::wstring WinRTMidiPortWatcher::GetMidiInDeviceInterfaceID(unsigned int i);
+        std::wstring WinRTMidiPortWatcher::GetMidiOutDeviceInterfaceID(unsigned int i);
+
+
         Windows::Devices::Enumeration::DeviceWatcher^ mPortWatcher;
         std::vector<std::unique_ptr<WinRTMidiPortInfo>> mPortInfo;
         std::mutex mEnumerationMutex;
         std::condition_variable mSleepCondition;
+
+        // Windows::Devices::Midi reports incorrect port names, for example Oxygen25Oxygen25 instead of just Oxygen25
+        // We will use this std::map to map the port device ID to the old Win32 MM port names so we can get the original (and correct) port name
+        // The map will contain <device id, portName>
+        std::map<std::wstring, std::wstring> mNameMap;
 
         MidiPortChangedCallback mPortChangedCallback;
         WinRTMidiPortType mPortType;
