@@ -1,4 +1,6 @@
 ﻿# WinRTMidi DLL #
+ 
+ ## This project is no longer supported. Please report issues with the Windows::Device::Midi API to https://wpdev.uservoice.com/ ##
 
 This GitHub WinRTMidi project wraps the Windows Runtime [Windows::Devices::Midi](https://msdn.microsoft.com/library/windows/apps/windows.devices.midi.aspx) API 
 in a Win32 DLL that can be dynamically loaded by a standard Win32 application. If the application is running on a device with Windows 10, the DLL will 
